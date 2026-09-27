@@ -6,6 +6,7 @@ import tkinter as tk
 import random
 import time
 import os
+import sys
 import json
 from pathlib import Path
 
@@ -175,6 +176,20 @@ class UnifiedMatrixTerminal(tk.Tk):
         self.geometry("1140x740")
         self.minsize(920, 600)
         self.configure(bg="#010803")
+
+        # Set Window Icon
+        icon_candidates = [
+            os.path.join(getattr(sys, "_MEIPASS", ""), "matrix_terminal.ico") if getattr(sys, "frozen", False) else None,
+            os.path.join(os.path.dirname(os.path.abspath(__file__)), "matrix_terminal.ico"),
+            os.path.join(Path.home(), "matrix_terminal.ico"),
+        ]
+        for icon_path in icon_candidates:
+            if icon_path and os.path.exists(icon_path):
+                try:
+                    self.iconbitmap(icon_path)
+                    break
+                except Exception:
+                    pass
 
         self.config = self._load_or_create_config()
         self.current_theme_name = self.config.get("theme", "matrix_green")
