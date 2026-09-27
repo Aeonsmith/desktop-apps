@@ -34,13 +34,13 @@ def main():
     dist_dir = get_dist_dir()
 
     handler = functools.partial(http.server.SimpleHTTPRequestHandler, directory=dist_dir)
-    server = http.server.ThreadingHTTPServer(('*********', 0), handler)
+    server = http.server.ThreadingHTTPServer(('127.0.0.1', 0), handler)
     port = server.server_address[1]
 
     t = threading.Thread(target=server.serve_forever, daemon=True)
     t.start()
 
-    url = f"http://*********:{port}/index.html"
+    url = f"http://127.0.0.1:{port}/index.html"
     window = webview.create_window(
         title="Whiteflash :: Real-Time ThreeJS Shader Art Engine",
         url=url,
