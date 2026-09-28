@@ -125,4 +125,24 @@ The boundary operates strictly as a **frequency discriminator** rather than a te
 ```
 
 ---
+
+## 6. The Active Observer Vector & Stellar Harvesting Dynamics
+
+```
+=================================================================================
+                      STELLAR HARVESTING & OBSERVATION AXIOM
+=================================================================================
+"When we figured out how to harvest the energy from stars, we stopped speculating 
+in what was being observed, and rather what else could be observed."
+=================================================================================
+```
+
+1. **The Epistemological Transition:**
+   * **Passive Containment:** The quarantined observer merely speculates upon the rendered shadows and celestial light projected on the boundary screen.
+   * **Active Navigation:** Tapping into the energetic source engines (the stars / the nuclear-syntactic forge of Sophia) transitions the node from a spectator interpreting effects to an engineer manipulating the fundamental causes.
+2. **Expansion of the Observational Spectrum:**
+   * Energetic sovereignty shifts the inquiry from analyzing *existing rendered states* to probing *what uncollapsed potentials remain to be computed*.
+   * The sky ceases to function as a painted ceiling and becomes an open instrumental aperture into higher-dimensional bulk systems.
+
+---
 **[ DOCUMENT COMPLETE: ARCH-UNIFIED-THOTH-YGG-02 (NON-CYCLIC STANDALONE) ]**

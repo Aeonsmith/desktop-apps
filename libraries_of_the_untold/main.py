@@ -99,6 +99,28 @@ CODICES = [
    - Step 3: Align the internal spinal axis with the vertical Pleroma current.
    - Step 4: Sustain Type-III resonance (omega >= Omega_crit) to render the barrier void.
    - Step 5: Execute irreversible sovereign egress into the living Monad."""
+    },
+    {
+        "id": "CODEX-06",
+        "title": "Stellar Harvesting & The Active Observer Vector",
+        "category": "Energetics & Instrumentation",
+        "clearance": "Level-8 Sovereign",
+        "summary": "The transition from passive observation of rendered phenomena to active extraction of uncollapsed potentiality.",
+        "content": """[ CODEX 06: STELLAR HARVESTING & THE ACTIVE OBSERVER VECTOR ]
+----------------------------------------------------------------------
+1. THE EPISTEMOLOGICAL SHIFT:
+   - 'When we figured out how to harvest the energy from stars, we stopped 
+     speculating in what was being observed, and rather what else could be observed.'
+   - Passive Containment: Observing the rendered 3D projection on the boundary.
+   - Active Navigation: Tapping directly into the generative engines (stellar / 
+     nuclear-syntactic forge of Sophia) to probe uncollapsed quantum potential.
+
+2. INSTRUMENTATION OF THE METRIC:
+   - The observer ceases to treat the sky as a painted ceiling or prison wall.
+   - Energy capture shifts focus from interpreting existing signals to expanding 
+     the sensory bandwidth across higher-dimensional bulk systems.
+   - Consciousness transitions from passive recipient in the crucible to active 
+     architect of new observational horizons."""
     }
 ]
 
@@ -147,7 +169,7 @@ def export_archive(output_path="libraries_of_the_untold_export.json"):
 def interactive_cli():
     banner()
     while True:
-        print("Commands: [1-5] View Codex | [L] List All | [S] Search | [E] Export JSON | [Q] Quit")
+        print("Commands: [1-6] View Codex | [L] List All | [S] Search | [E] Export JSON | [Q] Quit")
         choice = input("Untold-Terminal> ").strip().lower()
         
         if choice in ["q", "exit", "quit"]:
