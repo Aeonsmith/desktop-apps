@@ -1,0 +1,2501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kaluza-Klein & U(1) Gauge Theory Explorer</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Three.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@300;400;600;700;800&display=swap');
+    body { font-family: 'Inter', sans-serif; background-color: #0b0f19; color: #e2e8f0; }
+    .mono { font-family: 'Fira Code', monospace; }
+    .glass { background: rgba(17, 24, 39, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+    .glass-card { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(16px); border: 1px solid rgba(59, 130, 246, 0.2); }
+    .glow-cyan { box-shadow: 0 0 25px rgba(6, 182, 212, 0.25); }
+    .glow-amber { box-shadow: 0 0 25px rgba(245, 158, 11, 0.25); }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #0b0f19; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
+    .tab-btn.active { background: linear-gradient(135deg, #1d4ed8, #0ea5e9); color: white; border-color: rgba(255,255,255,0.3); font-weight: 600; }
+  </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden custom-scrollbar">
+
+  <!-- Header -->
+  <header class="glass border-b border-slate-800 px-6 py-3 flex items-center justify-between z-30">
+    <div class="flex items-center space-x-3">
+      <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/30">
+        <span class="mono font-bold text-white text-lg">5D</span>
+      </div>
+      <div>
+        <h1 class="text-lg font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-300 bg-clip-text text-transparent">
+          Kaluza-Klein & Gauge Theory Studio
+        </h1>
+        <p class="text-xs text-slate-400">Unifying Gravity & Electromagnetism via 5D Geometry and Local U(1) Invariance</p>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="flex space-x-1.5 p-1 bg-slate-900/90 rounded-xl border border-slate-800">
+      <button onclick="switchTab('tab-5d')" id="btn-tab-5d" class="tab-btn active px-3.5 py-1.5 rounded-lg text-xs transition-all text-slate-300 hover:text-white flex items-center space-x-1.5">
+        <span>🌀</span><span>5D Hyperspace & Jello</span>
+      </button>
+      <button onclick="switchTab('tab-gauge')" id="btn-tab-gauge" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs transition-all text-slate-300 hover:text-white flex items-center space-x-1.5">
+        <span>🚩</span><span>Dirac Spinors & Gauge</span>
+      </button>
+      <button onclick="switchTab('tab-metric')" id="btn-tab-metric" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs transition-all text-slate-300 hover:text-white flex items-center space-x-1.5">
+        <span>📐</span><span>Metric & KK Miracle</span>
+      </button>
+      <button onclick="switchTab('tab-tower')" id="btn-tab-tower" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs transition-all text-slate-300 hover:text-white flex items-center space-x-1.5">
+        <span>🪜</span><span>KK Tower & Catastrophe</span>
+      </button>
+      <button onclick="switchTab('tab-lorentz')" id="btn-tab-lorentz" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs transition-all text-slate-300 hover:text-white flex items-center space-x-1.5">
+        <span>⚡</span><span>Lorentz Force & Maxwell</span>
+      </button>
+      <button onclick="switchTab('tab-coupling')" id="btn-tab-coupling" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs transition-all text-slate-300 hover:text-white flex items-center space-x-1.5">
+        <span>🎯</span><span>Gauge Trajectory Coupling</span>
+      </button>
+      <button onclick="switchTab('tab-energy')" id="btn-tab-energy" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs transition-all text-slate-300 hover:text-white flex items-center space-x-1.5">
+        <span>📊</span><span>Energy & Hamiltonian</span>
+      </button>
+      <button onclick="switchTab('tab-docs')" id="btn-tab-docs" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs transition-all text-slate-300 hover:text-white flex items-center space-x-1.5">
+        <span>📚</span><span>Gauge Physics Docs</span>
+      </button>
+      <button onclick="switchTab('tab-synthesis')" id="btn-tab-synthesis" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs transition-all text-slate-300 hover:text-white flex items-center space-x-1.5">
+        <span>🏛️</span><span>Theory Synthesis</span>
+      </button>
+    </nav>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="flex-1 overflow-hidden relative">
+
+    <!-- ========================================== -->
+    <!-- TAB 1: 5D Hyperspace & Jello Seam Explorer -->
+    <!-- ========================================== -->
+    <section id="tab-5d" class="tab-content h-full p-4 grid grid-cols-12 gap-4 overflow-y-auto custom-scrollbar">
+      <!-- 3D WebGL Viewport -->
+      <div class="col-span-12 lg:col-span-8 flex flex-col h-[520px] lg:h-full glass-card rounded-2xl p-4 relative overflow-hidden">
+        <div class="flex items-center justify-between mb-2 z-10">
+          <div>
+            <h2 class="text-sm font-bold text-cyan-400 flex items-center space-x-2">
+              <span>Interactive 5D Cylinder Fiber Bundle: M⁴ × S¹</span>
+              <span class="text-[10px] px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800 mono">WebGL 3D</span>
+            </h2>
+            <p class="text-xs text-slate-400">Visualizing compactified circular coordinate θ ∈ [0, 2π) along macroscopic space x.</p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button id="toggle-anim-btn" class="px-2.5 py-1 rounded-md text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200">Pause Rotation</button>
+            <button id="reset-cam-btn" class="px-2.5 py-1 rounded-md text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200">Reset View</button>
+          </div>
+        </div>
+
+        <div id="three-container-5d" class="flex-1 w-full rounded-xl overflow-hidden relative bg-slate-950/70 border border-slate-800/80">
+          <!-- Live Overlay HUD -->
+          <div class="absolute bottom-3 left-3 glass p-2.5 rounded-lg text-xs mono space-y-1 z-10 pointer-events-none">
+            <div class="text-cyan-300 font-bold">5D Metric State:</div>
+            <div>θ-radius (R): <span id="hud-radius" class="text-amber-400">1.00</span></div>
+            <div>Winding Mode (n): <span id="hud-winding" class="text-indigo-400">1</span></div>
+            <div>Gauge Seam Offset ε(x): <span id="hud-seam" class="text-emerald-400">Active</span></div>
+            <div>Induced Potential A_x = ∂_x ε: <span id="hud-ax" class="text-pink-400">0.00</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Control & Insight Panel -->
+      <div class="col-span-12 lg:col-span-4 flex flex-col space-y-4">
+        <!-- Coordinate Transformation / Jello Controls -->
+        <div class="glass-card rounded-2xl p-4 space-y-3.5">
+          <h3 class="text-sm font-bold text-amber-400 flex items-center space-x-2">
+            <span>General Covariance ≡ Local U(1) Symmetry</span>
+          </h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            In 5D Kaluza-Klein, shifting the coordinate seam <span class="mono text-cyan-300">θ → θ' = θ + κε(x,t)</span> ("jiggling the jello") naturally transforms the metric component <span class="mono text-pink-300">A_μ → A_μ + ∂_μ ε</span> and transforms the matter wave phase <span class="mono text-emerald-300">ψ → e^{-inκε} ψ</span>.
+          </p>
+
+          <div class="space-y-3 pt-2">
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-300 font-medium">Seam Squiggle Amplitude (ε₀):</span>
+                <span id="val-squish" class="mono text-cyan-400">0.80</span>
+              </div>
+              <input type="range" id="slider-squish" min="0" max="2.5" step="0.05" value="0.80" class="w-full accent-cyan-500 bg-slate-800 h-1.5 rounded-lg">
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-300 font-medium">Spatial Squiggle Frequency (k_x):</span>
+                <span id="val-freq" class="mono text-cyan-400">2.00</span>
+              </div>
+              <input type="range" id="slider-freq" min="0.5" max="6" step="0.25" value="2.00" class="w-full accent-cyan-500 bg-slate-800 h-1.5 rounded-lg">
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-300 font-medium">Wavefunction Winding Mode (n):</span>
+                <span id="val-winding" class="mono text-indigo-400">1</span>
+              </div>
+              <input type="range" id="slider-winding" min="-3" max="3" step="1" value="1" class="w-full accent-indigo-500 bg-slate-800 h-1.5 rounded-lg">
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-300 font-medium">Extra Dimension Radius (R = √φ):</span>
+                <span id="val-radius" class="mono text-amber-400">1.00</span>
+              </div>
+              <input type="range" id="slider-radius" min="0.3" max="2.2" step="0.05" value="1.00" class="w-full accent-amber-500 bg-slate-800 h-1.5 rounded-lg">
+            </div>
+          </div>
+        </div>
+
+        <!-- 2D Slice / Phase Sampler -->
+        <div class="glass-card rounded-2xl p-4 flex-1 flex flex-col">
+          <div class="flex justify-between items-center mb-2">
+            <h4 class="text-xs font-bold text-slate-200">4D Observed Wavefunction Phase ψ(x)</h4>
+            <span class="text-[10px] text-slate-400 mono">Sampled along θ = 0</span>
+          </div>
+          <div class="flex-1 min-h-[140px] relative">
+            <canvas id="canvas-2d-phase" class="w-full h-full rounded-lg bg-slate-950/80 border border-slate-800"></canvas>
+          </div>
+          <div class="mt-2 text-[11px] text-slate-400 flex items-center justify-between">
+            <span class="flex items-center space-x-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 inline-block"></span>
+              <span>Re(ψ)</span>
+            </span>
+            <span class="flex items-center space-x-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-pink-400 inline-block"></span>
+              <span>Im(ψ)</span>
+            </span>
+            <span class="flex items-center space-x-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block"></span>
+              <span>Gauge Potential A_x</span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: Dirac Spinors & Gauge Invariance    -->
+    <!-- ========================================== -->
+    <section id="tab-gauge" class="tab-content hidden h-full p-4 grid grid-cols-12 gap-4 overflow-y-auto custom-scrollbar">
+      <div class="col-span-12 lg:col-span-7 flex flex-col h-[520px] lg:h-full glass-card rounded-2xl p-4">
+        <div class="flex justify-between items-center mb-3">
+          <div>
+            <h2 class="text-sm font-bold text-indigo-400 flex items-center space-x-2">
+              <span>Dirac Bispinors & "Spinor Flags" Visualization</span>
+            </h2>
+            <p class="text-xs text-slate-400">Unit spinor mapped to SO(3) flagpole via SU(2) double cover: ψ → e^{iθ}ψ rotates flag around pole.</p>
+          </div>
+          <div class="flex space-x-1.5">
+            <button onclick="setSpinorType('electron')" id="btn-spinor-e" class="px-3 py-1 text-xs rounded bg-blue-600 text-white font-medium">Electron (e⁻)</button>
+            <button onclick="setSpinorType('positron')" id="btn-spinor-p" class="px-3 py-1 text-xs rounded bg-slate-800 text-slate-300 hover:text-white">Positron (e⁺)</button>
+          </div>
+        </div>
+
+        <div class="flex-1 grid grid-cols-2 gap-3 min-h-[280px]">
+          <!-- Complex Plane Component Display -->
+          <div class="glass rounded-xl p-3 flex flex-col items-center justify-between bg-slate-950/80 border border-slate-800">
+            <span class="text-xs font-semibold text-slate-300">Complex Plane (Components A & B)</span>
+            <canvas id="canvas-complex-plane" class="w-full flex-1 max-h-[220px]"></canvas>
+            <div class="text-[11px] mono text-slate-400 text-center">
+              ψ = [ <span id="spin-a-val" class="text-cyan-400">0.71</span>, <span id="spin-b-val" class="text-pink-400">0.71 e^{iΔφ}</span> ]ᵀ
+            </div>
+          </div>
+
+          <!-- 3D Flag Visualization Canvas -->
+          <div class="glass rounded-xl p-3 flex flex-col items-center justify-between bg-slate-950/80 border border-slate-800" id="three-spinor-box">
+            <span class="text-xs font-semibold text-slate-300">3D Spatial Flag Orientation</span>
+            <div id="three-spinor-container" class="w-full flex-1 min-h-[200px]"></div>
+            <div class="text-[11px] mono text-slate-400 text-center">
+              Pole: (<span id="flag-nx">0</span>, <span id="flag-ny">1</span>, <span id="flag-nz">0</span>) | Angle: <span id="flag-angle">0°</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Spinor Field Grid -->
+        <div class="mt-3 glass rounded-xl p-3 flex flex-col bg-slate-950/80 border border-slate-800">
+          <div class="flex justify-between text-xs mb-1">
+            <span class="font-semibold text-slate-300">2D Spatial Spinor Slice with Local Gauge Field θ(x,y)</span>
+            <span class="text-slate-400 mono">Induced Momentum Waves</span>
+          </div>
+          <canvas id="canvas-spinor-field" class="w-full h-24 rounded bg-slate-950"></canvas>
+        </div>
+      </div>
+
+      <!-- Gauge Theory Controls & Six Ways -->
+      <div class="col-span-12 lg:col-span-5 flex flex-col space-y-4">
+        <!-- Spin State Control -->
+        <div class="glass-card rounded-2xl p-4 space-y-3">
+          <h3 class="text-sm font-bold text-cyan-400">Spin & Phase Parameters</h3>
+          <div class="space-y-3">
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-300">Spin Superposition (Up vs Down):</span>
+                <span id="val-spin-mix" class="mono text-cyan-400">50% Up / 50% Down</span>
+              </div>
+              <input type="range" id="slider-spin-mix" min="0" max="1" step="0.02" value="0.5" class="w-full accent-cyan-500 bg-slate-800 h-1.5 rounded-lg">
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-300">Relative Phase Difference (Δφ):</span>
+                <span id="val-spin-phase" class="mono text-pink-400">0.0 rad (0°)</span>
+              </div>
+              <input type="range" id="slider-spin-phase" min="0" max="6.283" step="0.05" value="0" class="w-full accent-pink-500 bg-slate-800 h-1.5 rounded-lg">
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-300">Applied Gauge Gradient (∂_x θ):</span>
+                <span id="val-gauge-grad" class="mono text-emerald-400">1.50</span>
+              </div>
+              <input type="range" id="slider-gauge-grad" min="0" max="4" step="0.1" value="1.5" class="w-full accent-emerald-500 bg-slate-800 h-1.5 rounded-lg">
+            </div>
+          </div>
+        </div>
+
+        <!-- The "Six Ways" (Faraday Tensor Matrix) -->
+        <div class="glass-card rounded-2xl p-4 flex-1 space-y-3">
+          <div class="flex justify-between items-center">
+            <h3 class="text-sm font-bold text-amber-400">The "Six Ways": Faraday Tensor F_μν</h3>
+            <span class="text-[10px] mono bg-amber-950/80 text-amber-300 px-2 py-0.5 rounded border border-amber-800">Antisymmetric</span>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            The 6 gauge-invariant degrees of freedom for the photon field: 3 electric components <span class="mono text-cyan-300">E_i = F_{0i}</span> and 3 magnetic components <span class="mono text-pink-300">B_i = -½ ε_{ijk} F^{jk}</span>.
+          </p>
+
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 mono text-xs overflow-x-auto">
+            <table class="w-full text-center border-collapse">
+              <thead>
+                <tr class="text-slate-500 border-b border-slate-800">
+                  <th class="p-1">μ\ν</th><th class="p-1 text-cyan-400">0 (t)</th><th class="p-1 text-cyan-400">1 (x)</th><th class="p-1 text-cyan-400">2 (y)</th><th class="p-1 text-cyan-400">3 (z)</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-900">
+                <tr>
+                  <td class="p-1 font-bold text-cyan-400">0</td>
+                  <td class="p-1 text-slate-600">0</td>
+                  <td class="p-1 text-cyan-300 font-bold">-E_x</td>
+                  <td class="p-1 text-cyan-300 font-bold">-E_y</td>
+                  <td class="p-1 text-cyan-300 font-bold">-E_z</td>
+                </tr>
+                <tr>
+                  <td class="p-1 font-bold text-cyan-400">1</td>
+                  <td class="p-1 text-cyan-300 font-bold">E_x</td>
+                  <td class="p-1 text-slate-600">0</td>
+                  <td class="p-1 text-pink-300 font-bold">-B_z</td>
+                  <td class="p-1 text-pink-300 font-bold">B_y</td>
+                </tr>
+                <tr>
+                  <td class="p-1 font-bold text-cyan-400">2</td>
+                  <td class="p-1 text-cyan-300 font-bold">E_y</td>
+                  <td class="p-1 text-pink-300 font-bold">B_z</td>
+                  <td class="p-1 text-slate-600">0</td>
+                  <td class="p-1 text-pink-300 font-bold">-B_x</td>
+                </tr>
+                <tr>
+                  <td class="p-1 font-bold text-cyan-400">3</td>
+                  <td class="p-1 text-cyan-300 font-bold">E_z</td>
+                  <td class="p-1 text-pink-300 font-bold">-B_y</td>
+                  <td class="p-1 text-pink-300 font-bold">B_x</td>
+                  <td class="p-1 text-slate-600">0</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800 text-xs mono flex justify-between">
+            <span class="text-slate-400">Lorentz Invariant:</span>
+            <span class="text-amber-300 font-bold">F_μν F^μν = 2(B² - E²)</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 3: Metric Decomposition & KK Miracle   -->
+    <!-- ========================================== -->
+    <section id="tab-metric" class="tab-content hidden h-full p-4 grid grid-cols-12 gap-4 overflow-y-auto custom-scrollbar">
+      <div class="col-span-12 lg:col-span-7 flex flex-col space-y-4">
+        <!-- 5D Metric Matrix Display -->
+        <div class="glass-card rounded-2xl p-4 space-y-3">
+          <div class="flex justify-between items-center">
+            <h2 class="text-sm font-bold text-cyan-400">5D Metric Tensor Breakdown: g̃_AB</h2>
+            <span class="text-[10px] mono bg-cyan-950 text-cyan-300 px-2 py-0.5 rounded border border-cyan-800">A, B ∈ {0,1,2,3,4}</span>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Writing the 5D metric with the cylinder condition & frozen radion <span class="mono text-amber-400">φ = R²</span> cleanly factorizes 4D Gravity (<span class="mono text-blue-400">g_μν</span>), Electromagnetism (<span class="mono text-emerald-400">A_μ</span>), and the Scalar Radion (<span class="mono text-amber-400">φ</span>).
+          </p>
+
+          <!-- Interactive 5x5 Matrix -->
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 mono text-xs overflow-x-auto">
+            <table class="w-full text-center border-collapse">
+              <thead>
+                <tr class="text-slate-500 border-b border-slate-800">
+                  <th class="p-1.5">g̃_AB</th>
+                  <th class="p-1.5 text-blue-400">0</th>
+                  <th class="p-1.5 text-blue-400">1</th>
+                  <th class="p-1.5 text-blue-400">2</th>
+                  <th class="p-1.5 text-blue-400">3</th>
+                  <th class="p-1.5 text-emerald-400">4 (θ)</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-900">
+                <tr>
+                  <td class="p-1.5 font-bold text-blue-400">0</td>
+                  <td class="p-1.5 bg-blue-950/40 text-blue-300 rounded" id="m-00">1.00</td>
+                  <td class="p-1.5 bg-blue-950/40 text-blue-300" id="m-01">0.00</td>
+                  <td class="p-1.5 bg-blue-950/40 text-blue-300" id="m-02">0.00</td>
+                  <td class="p-1.5 bg-blue-950/40 text-blue-300" id="m-03">0.00</td>
+                  <td class="p-1.5 bg-emerald-950/50 text-emerald-300 font-bold border-l border-slate-800" id="m-04">φκA_0</td>
+                </tr>
+                <tr>
+                  <td class="p-1.5 font-bold text-blue-400">1</td>
+                  <td class="p-1.5 bg-blue-950/40 text-blue-300" id="m-10">0.00</td>
+                  <td class="p-1.5 bg-blue-950/40 text-blue-300" id="m-11">-1.00</td>
+                  <td class="p-1.5 bg-blue-950/40 text-blue-300" id="m-12">0.00</td>
+                  <td class="p-1.5 bg-blue-950/40 text-blue-300" id="m-13">0.00</td>
+                  <td class="p-1.5 bg-emerald-950/50 text-emerald-300 font-bold border-l border-slate-800" id="m-14">φκA_1</td>
+                </tr>
+                <tr>
+                  <td class="p-1.5 font-bold text-blue-400">2</td>
+                  <td class="p-1.5 bg-blue-950/40 text-blue-300" id="m-20">0.00</td>
+                  <td class="p-1.5 bg-blue-950/40 text-blue-300" id="m-21">0.00</td>
+                  <td class="p-1.5 bg-blue-950/40 text-blue-300" id="m-22">-1.00</td>
+                  <td class="p-1.5 bg-blue-950/40 text-blue-300" id="m-23">0.00</td>
+                  <td class="p-1.5 bg-emerald-950/50 text-emerald-300 font-bold border-l border-slate-800" id="m-24">φκA_2</td>
+                </tr>
+                <tr>
+                  <td class="p-1.5 font-bold text-blue-400">3</td>
+                  <td class="p-1.5 bg-blue-950/40 text-blue-300" id="m-30">0.00</td>
+                  <td class="p-1.5 bg-blue-950/40 text-blue-300" id="m-31">0.00</td>
+                  <td class="p-1.5 bg-blue-950/40 text-blue-300" id="m-32">0.00</td>
+                  <td class="p-1.5 bg-blue-950/40 text-blue-300" id="m-33">-1.00</td>
+                  <td class="p-1.5 bg-emerald-950/50 text-emerald-300 font-bold border-l border-slate-800" id="m-34">φκA_3</td>
+                </tr>
+                <tr class="border-t-2 border-slate-700">
+                  <td class="p-1.5 font-bold text-emerald-400">4</td>
+                  <td class="p-1.5 bg-emerald-950/50 text-emerald-300 font-bold" id="m-40">φκA_0</td>
+                  <td class="p-1.5 bg-emerald-950/50 text-emerald-300 font-bold" id="m-41">φκA_1</td>
+                  <td class="p-1.5 bg-emerald-950/50 text-emerald-300 font-bold" id="m-42">φκA_2</td>
+                  <td class="p-1.5 bg-emerald-950/50 text-emerald-300 font-bold" id="m-43">φκA_3</td>
+                  <td class="p-1.5 bg-amber-950/60 text-amber-300 font-extrabold border-l border-slate-800" id="m-44">-φ = -R²</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- The Kaluza-Klein Action Miracle Formula -->
+        <div class="glass-card rounded-2xl p-4 space-y-3">
+          <h3 class="text-sm font-bold text-indigo-400">The Kaluza-Klein Action Miracle</h3>
+          <div class="p-3.5 bg-slate-950 rounded-xl border border-indigo-900/50 mono text-xs space-y-2">
+            <div class="text-slate-400">// Integrating 5D Einstein-Hilbert Action over compact fiber S¹:</div>
+            <div class="text-cyan-300 font-semibold">S_5D = -1/(16π G̃) ∫ d⁵x √|-g̃| R̃</div>
+            <div class="text-slate-400">↓ Substitute R̃ = R + ¼ κ² φ F_μν F^μν and √|-g̃| = √φ √|-g|:</div>
+            <div class="text-emerald-300 font-semibold">S_4D = -1/(16π G) ∫ d⁴x √|-g| R - ¼ ∫ d⁴x √|-g| F_μν F^μν</div>
+            <div class="text-amber-400 font-bold flex items-center space-x-2 pt-1 border-t border-slate-800">
+              <span>★ Result: 5D Pure Gravity = 4D General Relativity + 4D Maxwell Electromagnetism</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Metric Evaluator & Parameter Controls -->
+      <div class="col-span-12 lg:col-span-5 flex flex-col space-y-4">
+        <div class="glass-card rounded-2xl p-4 space-y-3.5">
+          <h3 class="text-sm font-bold text-amber-400">Metric Field Parameters</h3>
+
+          <div class="space-y-3">
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-300">Radion Field φ = R²:</span>
+                <span id="metric-phi-val" class="mono text-amber-400">1.00</span>
+              </div>
+              <input type="range" id="slider-metric-phi" min="0.2" max="3.0" step="0.1" value="1.0" class="w-full accent-amber-500 bg-slate-800 h-1.5 rounded-lg">
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-300">Potential A_0 (Electric Voltage Φ):</span>
+                <span id="metric-a0-val" class="mono text-cyan-400">0.50 V</span>
+              </div>
+              <input type="range" id="slider-metric-a0" min="-2.0" max="2.0" step="0.1" value="0.5" class="w-full accent-cyan-500 bg-slate-800 h-1.5 rounded-lg">
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-300">Vector Potential A_1 (A_x):</span>
+                <span id="metric-a1-val" class="mono text-emerald-400">0.80 T·m</span>
+              </div>
+              <input type="range" id="slider-metric-a1" min="-2.0" max="2.0" step="0.1" value="0.8" class="w-full accent-emerald-500 bg-slate-800 h-1.5 rounded-lg">
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-300">Coupling Constant κ:</span>
+                <span id="metric-kappa-val" class="mono text-indigo-400">1.00</span>
+              </div>
+              <input type="range" id="slider-metric-kappa" min="0.2" max="2.5" step="0.1" value="1.0" class="w-full accent-indigo-500 bg-slate-800 h-1.5 rounded-lg">
+            </div>
+          </div>
+        </div>
+
+        <!-- Curvature & Determinant Diagnostics -->
+        <div class="glass-card rounded-2xl p-4 flex-1 space-y-3">
+          <h3 class="text-sm font-bold text-cyan-400">Calculated Curvature Diagnostics</h3>
+          <div class="space-y-2 text-xs mono">
+            <div class="p-2.5 rounded-lg bg-slate-950 flex justify-between border border-slate-800">
+              <span class="text-slate-400">det(g̃_AB):</span>
+              <span id="calc-det" class="text-cyan-400 font-bold">-1.00</span>
+            </div>
+            <div class="p-2.5 rounded-lg bg-slate-950 flex justify-between border border-slate-800">
+              <span class="text-slate-400">4D Base Curvature (R):</span>
+              <span id="calc-r4" class="text-blue-400 font-bold">0.00 (Flat)</span>
+            </div>
+            <div class="p-2.5 rounded-lg bg-slate-950 flex justify-between border border-slate-800">
+              <span class="text-slate-400">Fiber Twist Curvature (¼κ²φ F²):</span>
+              <span id="calc-twist" class="text-emerald-400 font-bold">+0.22</span>
+            </div>
+            <div class="p-2.5 rounded-lg bg-slate-950 flex justify-between border border-slate-800">
+              <span class="text-slate-400">Total 5D Scalar Curvature (R̃):</span>
+              <span id="calc-r5" class="text-amber-400 font-bold">+0.22</span>
+            </div>
+          </div>
+          <p class="text-[11px] text-slate-400 italic">
+            *In differential geometry, this splitting is a direct consequence of O'Neill's Theorem for Riemannian submersions on fiber bundles.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 4: KK Tower & Charge-Mass Catastrophe  -->
+    <!-- ========================================== -->
+    <section id="tab-tower" class="tab-content hidden h-full p-4 grid grid-cols-12 gap-4 overflow-y-auto custom-scrollbar">
+      <div class="col-span-12 lg:col-span-7 flex flex-col h-[520px] lg:h-full glass-card rounded-2xl p-4">
+        <div class="flex justify-between items-center mb-2">
+          <div>
+            <h2 class="text-sm font-bold text-amber-400 flex items-center space-x-2">
+              <span>The Kaluza-Klein Momentum Ladder / Tower</span>
+            </h2>
+            <p class="text-xs text-slate-400">Quantized compact momentum p_θ = n/R generates discrete 4D effective mass m_n = |n|/R & charge q_n = ne.</p>
+          </div>
+          <span class="text-[10px] mono bg-amber-950 text-amber-300 px-2 py-0.5 rounded border border-amber-800">Spectrum</span>
+        </div>
+
+        <!-- Chart.js Ladder Chart -->
+        <div class="flex-1 min-h-[300px] relative">
+          <canvas id="chart-kk-tower" class="w-full h-full"></canvas>
+        </div>
+      </div>
+
+      <!-- Catastrophe Analysis Panel -->
+      <div class="col-span-12 lg:col-span-5 flex flex-col space-y-4">
+        <div class="glass-card rounded-2xl p-4 space-y-3.5 border-rose-900/40">
+          <h3 class="text-sm font-bold text-rose-400 flex items-center space-x-2">
+            <span>⚠ The Charge-Mass Catastrophe</span>
+          </h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Matching the elementary charge <span class="mono text-cyan-300">q₁ = e</span> fixes the radius of the 5th dimension to <span class="mono text-amber-300">R ≈ 23 ℓ_P ≈ 3.8 × 10⁻³⁴ m</span>.
+          </p>
+          <div class="p-3 bg-rose-950/30 rounded-xl border border-rose-900/50 space-y-2 mono text-xs">
+            <div class="flex justify-between">
+              <span class="text-slate-400">Compact Radius (R):</span>
+              <span class="text-amber-300 font-bold">23 ℓ_Planck</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-400">n=1 Tower Mode Mass (m₁):</span>
+              <span class="text-rose-400 font-bold">5.2 × 10¹⁷ GeV</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-400">Electron Physical Mass (m_e):</span>
+              <span class="text-emerald-400 font-bold">0.000511 GeV</span>
+            </div>
+            <div class="pt-1 border-t border-rose-900/60 text-rose-300 font-semibold text-center">
+              Discrepancy: m₁ is ~10²¹× too heavy for an electron!
+            </div>
+          </div>
+        </div>
+
+        <!-- Tower Mode Inspector -->
+        <div class="glass-card rounded-2xl p-4 flex-1 space-y-3">
+          <h3 class="text-sm font-bold text-indigo-400">KK Mode Inspector</h3>
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-slate-300">Selected Winding Mode (n):</span>
+              <span id="inspect-n-val" class="mono text-indigo-400">n = 1</span>
+            </div>
+            <input type="range" id="slider-inspect-n" min="-5" max="5" step="1" value="1" class="w-full accent-indigo-500 bg-slate-800 h-1.5 rounded-lg">
+          </div>
+
+          <div class="space-y-2 text-xs mono">
+            <div class="p-2 rounded bg-slate-950 flex justify-between border border-slate-800">
+              <span class="text-slate-400">Winding Phase Direction:</span>
+              <span id="inspect-dir" class="text-cyan-300">Clockwise (Positive Charge)</span>
+            </div>
+            <div class="p-2 rounded bg-slate-950 flex justify-between border border-slate-800">
+              <span class="text-slate-400">Effective 4D Charge (q_n):</span>
+              <span id="inspect-charge" class="text-cyan-300">+1.00 e (+1.602 × 10⁻¹⁹ C)</span>
+            </div>
+            <div class="p-2 rounded bg-slate-950 flex justify-between border border-slate-800">
+              <span class="text-slate-400">Effective 4D Mass (m_n):</span>
+              <span id="inspect-mass" class="text-rose-400">5.2 × 10¹⁷ GeV (Planckian)</span>
+            </div>
+          </div>
+
+          <p class="text-[11px] text-slate-400 leading-normal">
+            Standard model fermions must reside as <span class="mono text-cyan-300 font-bold">n = 0 zero-modes</span> (with zero geometric mass), acquiring their small sub-TeV masses via the Higgs mechanism rather than KK compactification.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 5: Lorentz Force & Relativistic Maxwell -->
+    <!-- ========================================== -->
+    <section id="tab-lorentz" class="tab-content hidden h-full p-4 grid grid-cols-12 gap-4 overflow-y-auto custom-scrollbar">
+      <div class="col-span-12 lg:col-span-8 flex flex-col h-[520px] lg:h-full glass-card rounded-2xl p-4">
+        <div class="flex justify-between items-center mb-2">
+          <div>
+            <h2 class="text-sm font-bold text-cyan-400 flex items-center space-x-2">
+              <span>Relativistic Lorentz Force Particle Trajectory Simulator</span>
+            </h2>
+            <p class="text-xs text-slate-400">Solving m (du^μ / dτ) = (q/c) F^μ_ν u^ν for charged particles in electromagnetic fields.</p>
+          </div>
+          <button id="btn-reset-sim" class="px-2.5 py-1 text-xs rounded bg-slate-800 hover:bg-slate-700 text-slate-300">Clear Trails</button>
+        </div>
+
+        <div id="three-lorentz-container" class="flex-1 w-full rounded-xl overflow-hidden relative bg-slate-950/80 border border-slate-800"></div>
+      </div>
+
+      <!-- Field & Particle Controls -->
+      <div class="col-span-12 lg:col-span-4 flex flex-col space-y-4">
+        <div class="glass-card rounded-2xl p-4 space-y-3.5">
+          <h3 class="text-sm font-bold text-amber-400">Electromagnetic Field Setup</h3>
+
+          <div class="space-y-3">
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-300">Electric Field E_y:</span>
+                <span id="sim-ey-val" class="mono text-cyan-400">0.00 V/m</span>
+              </div>
+              <input type="range" id="slider-sim-ey" min="-5" max="5" step="0.2" value="0" class="w-full accent-cyan-500 bg-slate-800 h-1.5 rounded-lg">
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-300">Magnetic Field B_z:</span>
+                <span id="sim-bz-val" class="mono text-pink-400">2.00 T</span>
+              </div>
+              <input type="range" id="slider-sim-bz" min="-5" max="5" step="0.2" value="2.0" class="w-full accent-pink-500 bg-slate-800 h-1.5 rounded-lg">
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-300">Particle Charge Sign:</span>
+                <span id="sim-q-val" class="mono text-cyan-400">Electron (-e)</span>
+              </div>
+              <div class="grid grid-cols-2 gap-2 mt-1">
+                <button onclick="setSimCharge(-1)" id="btn-sim-neg" class="py-1 px-2 text-xs rounded bg-blue-600 text-white font-medium">Negative (-1)</button>
+                <button onclick="setSimCharge(1)" id="btn-sim-pos" class="py-1 px-2 text-xs rounded bg-slate-800 text-slate-300 hover:text-white font-medium">Positive (+1)</button>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-300">Initial Velocity (v_x / c):</span>
+                <span id="sim-vx-val" class="mono text-emerald-400">0.60 c</span>
+              </div>
+              <input type="range" id="slider-sim-vx" min="0.1" max="0.95" step="0.05" value="0.6" class="w-full accent-emerald-500 bg-slate-800 h-1.5 rounded-lg">
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card rounded-2xl p-4 flex-1 space-y-2.5">
+          <h3 class="text-sm font-bold text-indigo-400">Lorentz Force Relativistic Formula</h3>
+          <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 mono text-xs space-y-2">
+            <div class="text-emerald-300">dp^μ / dτ = (q/c) F^μ_ν u^ν</div>
+            <div class="text-slate-400 text-[11px]">Spatial components give:</div>
+            <div class="text-cyan-300">dp/dt = q (E + v/c × B)</div>
+          </div>
+          <p class="text-[11px] text-slate-400">
+            Positive and negative charges experience equal and opposite Lorentz forces, naturally reflecting whether the 5D wavefunction winds clockwise or counter-clockwise around the circular fiber θ.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================== -->
+    <!-- TAB 6: Gauge Field & Particle Trajectory Coupling    -->
+    <!-- ==================================================== -->
+    <section id="tab-coupling" class="tab-content hidden h-full p-4 grid grid-cols-12 gap-4 overflow-y-auto custom-scrollbar">
+      <!-- 3D Trajectory & Gauge Field Viewport -->
+      <div class="col-span-12 lg:col-span-8 flex flex-col h-[520px] lg:h-full glass-card rounded-2xl p-4 relative overflow-hidden">
+        <div class="flex items-center justify-between mb-2 z-10">
+          <div>
+            <h2 class="text-sm font-bold text-cyan-400 flex items-center space-x-2">
+              <span>Gauge Potential Coupling & Canonical Momentum Trajectory</span>
+              <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 mono">P_μ = p_μ + (q/c) A_μ</span>
+            </h2>
+            <p class="text-xs text-slate-400">Visualizing 3D vector potential field arrows A(x), kinetic momentum p, and 5D geodesic projection.</p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button id="toggle-viewmode-btn" class="px-2.5 py-1 rounded-md text-xs bg-indigo-900/80 hover:bg-indigo-800 border border-indigo-700 text-indigo-200">View: 4D Spacetime</button>
+            <button id="reset-coupling-sim-btn" class="px-2.5 py-1 rounded-md text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200">Restart Orbit</button>
+          </div>
+        </div>
+
+        <div id="three-coupling-container" class="flex-1 w-full rounded-xl overflow-hidden relative bg-slate-950/80 border border-slate-800">
+          <!-- Real-Time Momentum Vector HUD -->
+          <div class="absolute bottom-3 left-3 glass p-3 rounded-lg text-xs mono space-y-1.5 z-10 pointer-events-none max-w-sm">
+            <div class="text-white font-bold flex items-center justify-between border-b border-slate-700/80 pb-1">
+              <span>Momentum & Gauge Coupling</span>
+              <span id="hud-gauge-mode" class="text-emerald-400 font-semibold text-[10px]">Aharonov-Bohm Vortex</span>
+            </div>
+            <div class="flex items-center justify-between text-cyan-300">
+              <span class="flex items-center space-x-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 inline-block"></span>
+                <span>Kinetic Momentum p = mv:</span>
+              </span>
+              <span id="hud-pkin" class="font-bold">1.20</span>
+            </div>
+            <div class="flex items-center justify-between text-emerald-300">
+              <span class="flex items-center space-x-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block"></span>
+                <span>Gauge Coupling (q/c) A(x):</span>
+              </span>
+              <span id="hud-qA" class="font-bold">0.85</span>
+            </div>
+            <div class="flex items-center justify-between text-amber-300">
+              <span class="flex items-center space-x-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span>
+                <span>Canonical Momentum P = p + qA:</span>
+              </span>
+              <span id="hud-Pcan" class="font-bold">1.75</span>
+            </div>
+            <div class="flex items-center justify-between text-pink-300 pt-1 border-t border-slate-800">
+              <span>Accumulated Phase ∫ A·dx:</span>
+              <span id="hud-phase-int" class="font-bold">2.41 rad</span>
+            </div>
+            <div class="flex items-center justify-between text-indigo-300">
+              <span>5D Conserved u_4 = const:</span>
+              <span id="hud-u4" class="font-bold">-1.000</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls & Gauge Coupling Panel -->
+      <div class="col-span-12 lg:col-span-4 flex flex-col space-y-4">
+        <!-- Preset Field Selector -->
+        <div class="glass-card rounded-2xl p-4 space-y-3">
+          <h3 class="text-sm font-bold text-amber-400">Gauge Potential A(x) Configuration</h3>
+          
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="setCouplingPreset('solenoid')" id="btn-pre-solenoid" class="p-2 text-xs rounded-lg bg-blue-600 text-white font-medium text-left border border-blue-400/30">
+              <div class="font-bold">Aharonov-Bohm</div>
+              <div class="text-[10px] text-blue-200">Vortex A_φ = Φ / 2πr</div>
+            </button>
+            <button onclick="setCouplingPreset('landau')" id="btn-pre-landau" class="p-2 text-xs rounded-lg bg-slate-800 text-slate-300 hover:text-white text-left border border-slate-700">
+              <div class="font-bold">Landau Field</div>
+              <div class="text-[10px] text-slate-400">Uniform B_z (A_y = Bx)</div>
+            </button>
+            <button onclick="setCouplingPreset('drift')" id="btn-pre-drift" class="p-2 text-xs rounded-lg bg-slate-800 text-slate-300 hover:text-white text-left border border-slate-700">
+              <div class="font-bold">E × B Drift</div>
+              <div class="text-[10px] text-slate-400">Crossed Fields</div>
+            </button>
+            <button onclick="setCouplingPreset('coulomb')" id="btn-pre-coulomb" class="p-2 text-xs rounded-lg bg-slate-800 text-slate-300 hover:text-white text-left border border-slate-700">
+              <div class="font-bold">Central Well</div>
+              <div class="text-[10px] text-slate-400">Coulomb Φ(r) = -k/r</div>
+            </button>
+          </div>
+
+          <div class="space-y-3 pt-1">
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-300">Vector Field Strength (A₀ / B₀):</span>
+                <span id="val-coup-strength" class="mono text-cyan-400">2.00</span>
+              </div>
+              <input type="range" id="slider-coup-strength" min="0.2" max="5.0" step="0.2" value="2.0" class="w-full accent-cyan-500 bg-slate-800 h-1.5 rounded-lg">
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-300">Particle Charge q:</span>
+                <span id="val-coup-charge" class="mono text-emerald-400">-1.00 e</span>
+              </div>
+              <input type="range" id="slider-coup-charge" min="-2.0" max="2.0" step="0.5" value="-1.0" class="w-full accent-emerald-500 bg-slate-800 h-1.5 rounded-lg">
+            </div>
+          </div>
+        </div>
+
+        <!-- Real-Time Gauge Transformation Shift -->
+        <div class="glass-card rounded-2xl p-4 space-y-3 border-emerald-500/30">
+          <div class="flex justify-between items-center">
+            <h3 class="text-sm font-bold text-emerald-400 flex items-center space-x-1.5">
+              <span>⚡ Live Gauge Shift Test</span>
+            </h3>
+            <span class="text-[10px] mono bg-emerald-950 text-emerald-300 px-2 py-0.5 rounded border border-emerald-800">A → A + ∇Λ</span>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Shift the vector potential by a gauge gradient <span class="mono text-cyan-300">∇Λ</span>. Notice how the green gauge field arrows and canonical momentum <span class="mono text-amber-300">P</span> change, while the <strong>physical trajectory & velocity remain strictly invariant</strong>!
+          </p>
+
+          <div class="space-y-2">
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-300">Applied Gauge Shift Amplitude (Λ₀):</span>
+              <span id="val-lambda-shift" class="mono text-emerald-400">0.00</span>
+            </div>
+            <input type="range" id="slider-lambda-shift" min="-3.0" max="3.0" step="0.2" value="0.0" class="w-full accent-emerald-500 bg-slate-800 h-1.5 rounded-lg">
+            <div class="flex space-x-2 pt-1">
+              <button id="btn-toggle-field-arrows" class="flex-1 py-1 px-2 text-xs rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700">Toggle A(x) Field Grid</button>
+              <button id="btn-zero-gauge" class="py-1 px-3 text-xs rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700">Zero Λ</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5D Geodesic & Action Insight -->
+        <div class="glass-card rounded-2xl p-4 flex-1 space-y-2.5">
+          <h4 class="text-xs font-bold text-indigo-300 flex items-center space-x-1.5">
+            <span>5D Geodesic ≡ 4D Gauge Trajectory</span>
+          </h4>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            In 5D, a free particle moves along a straight geodesic in <span class="mono text-cyan-300">M⁴ × S¹</span>. The fiber twist <span class="mono text-emerald-300">A_μ</span> bends the 4D projection, coupling conserved 5th momentum <span class="mono text-amber-300">p_θ = n/R</span> to produce the classical Lorentz force <span class="mono text-cyan-300">F = q(E + v × B)</span>!
+          </p>
+          <div class="p-2.5 bg-slate-950 rounded-lg mono text-[11px] text-slate-400 space-y-1 border border-slate-800">
+            <div>5D Action: <span class="text-cyan-300">S = -m ∫ dS_5D</span></div>
+            <div>= <span class="text-slate-300">-m ∫ √[g_μν dx^μ dx^ν - φ(dθ - κ A_μ dx^μ)²]</span></div>
+            <div class="text-emerald-300">→ -m ∫ dτ - (q/c) ∫ A_μ dx^μ</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================== -->
+    <!-- TAB 7: Energy Conservation & Hamiltonian Dashboard   -->
+    <!-- ==================================================== -->
+    <section id="tab-energy" class="tab-content hidden h-full p-4 grid grid-cols-12 gap-4 overflow-y-auto custom-scrollbar">
+      <!-- Top Metrics Overview KPI Cards -->
+      <div class="col-span-12 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        <!-- Total Energy H -->
+        <div class="glass-card rounded-xl p-3 border-amber-500/30 flex flex-col justify-between">
+          <div class="flex items-center justify-between text-slate-400 text-[11px]">
+            <span>Total Hamiltonian ℋ</span>
+            <span class="text-amber-400 font-bold">T + V</span>
+          </div>
+          <div class="text-lg font-extrabold text-amber-300 mono my-1" id="dash-htot">0.720 J</div>
+          <div class="text-[10px] text-slate-400">Canonical energy state</div>
+        </div>
+
+        <!-- Conservation Error -->
+        <div class="glass-card rounded-xl p-3 border-emerald-500/30 flex flex-col justify-between">
+          <div class="flex items-center justify-between text-slate-400 text-[11px]">
+            <span>Energy Drift |Δℋ/ℋ₀|</span>
+            <span class="text-emerald-400 font-bold">Status</span>
+          </div>
+          <div class="text-lg font-extrabold text-emerald-400 mono my-1" id="dash-drift">0.001 %</div>
+          <div class="text-[10px] text-emerald-300/80">Strictly Conserved (dℋ/dt=0)</div>
+        </div>
+
+        <!-- Kinetic Energy -->
+        <div class="glass-card rounded-xl p-3 border-cyan-500/30 flex flex-col justify-between">
+          <div class="flex items-center justify-between text-slate-400 text-[11px]">
+            <span>Kinetic Energy T_kin</span>
+            <span class="text-cyan-400 font-bold">½mv²</span>
+          </div>
+          <div class="text-lg font-extrabold text-cyan-300 mono my-1" id="dash-tkin">0.720 J</div>
+          <div class="text-[10px] text-slate-400">Gauge-invariant velocity</div>
+        </div>
+
+        <!-- Potential Energy -->
+        <div class="glass-card rounded-xl p-3 border-pink-500/30 flex flex-col justify-between">
+          <div class="flex items-center justify-between text-slate-400 text-[11px]">
+            <span>Potential Energy V</span>
+            <span class="text-pink-400 font-bold">qΦ</span>
+          </div>
+          <div class="text-lg font-extrabold text-pink-300 mono my-1" id="dash-vpot">0.000 J</div>
+          <div class="text-[10px] text-slate-400">Scalar electric potential</div>
+        </div>
+
+        <!-- Magnetic Work Done -->
+        <div class="glass-card rounded-xl p-3 border-indigo-500/30 flex flex-col justify-between">
+          <div class="flex items-center justify-between text-slate-400 text-[11px]">
+            <span>Magnetic Work W_B</span>
+            <span class="text-indigo-400 font-bold">F_B · v</span>
+          </div>
+          <div class="text-lg font-extrabold text-indigo-300 mono my-1" id="dash-wb">0.000 J</div>
+          <div class="text-[10px] text-slate-400">F_B ⟂ v (Zero Work)</div>
+        </div>
+
+        <!-- 5D Invariant -->
+        <div class="glass-card rounded-xl p-3 border-slate-700 flex flex-col justify-between">
+          <div class="flex items-center justify-between text-slate-400 text-[11px]">
+            <span>5D Geodesic Invariant</span>
+            <span class="text-blue-400 font-bold">ℋ_5D</span>
+          </div>
+          <div class="text-lg font-extrabold text-blue-300 mono my-1" id="dash-h5d">1.000 m²</div>
+          <div class="text-[10px] text-slate-400">Conserved on M⁴ × S¹</div>
+        </div>
+      </div>
+
+      <!-- Real-Time Rolling Energy Chart -->
+      <div class="col-span-12 lg:col-span-8 flex flex-col h-[480px] glass-card rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <div>
+            <h3 class="text-sm font-bold text-amber-400 flex items-center space-x-2">
+              <span>Real-Time Hamiltonian Evolution & Energy Conservation</span>
+            </h3>
+            <p class="text-xs text-slate-400">Tracking kinetic, potential, and total canonical energy along the particle trajectory.</p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button id="btn-pause-energy-chart" class="px-2.5 py-1 text-xs rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700">Pause Chart</button>
+            <button id="btn-clear-energy-chart" class="px-2.5 py-1 text-xs rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700">Clear Data</button>
+          </div>
+        </div>
+
+        <div class="flex-1 w-full min-h-[340px] relative">
+          <canvas id="chart-energy-evolution" class="w-full h-full"></canvas>
+        </div>
+      </div>
+
+      <!-- Theoretical Explanations & Proofs -->
+      <div class="col-span-12 lg:col-span-4 flex flex-col space-y-4">
+        <!-- Hamiltonian & Gauge Mechanics -->
+        <div class="glass-card rounded-2xl p-4 space-y-3">
+          <h4 class="text-xs font-bold text-cyan-400">Hamiltonian Mechanics in Gauge Fields</h4>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            The canonical Hamiltonian for a particle in an electromagnetic gauge field <span class="mono text-emerald-300">(Φ, A)</span> is:
+          </p>
+          <div class="p-2.5 bg-slate-950 rounded-lg mono text-xs text-amber-300 border border-slate-800">
+            ℋ(x, P) = (1/2m) [ P - (q/c) A(x) ]² + q Φ(x)
+          </div>
+          <p class="text-[11px] text-slate-400 leading-relaxed">
+            Hamilton's equations <span class="mono text-slate-300">dx/dt = ∂ℋ/∂P</span> and <span class="mono text-slate-300">dP/dt = -∂ℋ/∂x</span> yield the gauge-invariant rate of energy change:
+          </p>
+          <div class="p-2 bg-slate-950 rounded-lg mono text-[11px] text-emerald-300 border border-slate-800">
+            dℋ/dt = ∂ℋ/∂t = - (q/c) v · (∂A/∂t) + q (∂Φ/∂t)
+          </div>
+          <p class="text-[11px] text-slate-400">
+            In any static background (<span class="mono text-slate-300">∂_t A = 0, ∂_t Φ = 0</span>), <span class="mono text-amber-300 font-bold">dℋ/dt ≡ 0</span> exactly.
+          </p>
+        </div>
+
+        <!-- Why Magnetic Fields Do No Work -->
+        <div class="glass-card rounded-2xl p-4 flex-1 space-y-2.5">
+          <h4 class="text-xs font-bold text-indigo-400">Why Magnetic Fields Do Strictly Zero Work</h4>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            The power transferred to the particle by the Lorentz force is:
+          </p>
+          <div class="p-2.5 bg-slate-950 rounded-lg mono text-xs text-cyan-300 border border-slate-800">
+            P_power = F · v = q E · v + q (v × B) · v
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Because the cross product <span class="mono text-pink-300">v × B</span> is perpendicular to <span class="mono text-pink-300">v</span> by definition, the scalar triple product vanishes identically:
+          </p>
+          <div class="p-2 bg-slate-950 rounded-lg mono text-xs text-emerald-400 font-bold border border-slate-800 text-center">
+            (v × B) · v = 0  ⟹  W_magnetic ≡ 0.00 J
+          </div>
+          <p class="text-[11px] text-slate-400">
+            A magnetic field can change a particle's trajectory direction and bend its path into spirals or cyclotron orbits, but it can <em>never</em> change its kinetic energy or speed.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 8: Gauge Transformations Documentation -->
+    <!-- ========================================== -->
+    <section id="tab-docs" class="tab-content hidden h-full p-6 overflow-y-auto custom-scrollbar">
+      <div class="max-w-6xl mx-auto space-y-6 pb-12">
+
+        <!-- Header Banner -->
+        <div class="glass-card rounded-2xl p-6 border-cyan-500/30">
+          <div class="flex items-center space-x-3 mb-2">
+            <div class="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold text-lg mono">
+              ∂_μ
+            </div>
+            <div>
+              <h2 class="text-xl font-bold text-white">Physical Implications of Gauge Transformations</h2>
+              <p class="text-xs text-slate-400">From Dirac Spinor Phase Invariance in 4D QED to 5D Kaluza-Klein General Covariance</p>
+            </div>
+          </div>
+          <p class="text-sm text-slate-300 leading-relaxed mt-2">
+            A <strong>gauge transformation</strong> is a redundant parameterization of the mathematical degrees of freedom in a physical theory that leaves all physical observables (actions, scattering amplitudes, energy-momentum tensors, and forces) completely invariant. Rather than being a mere mathematical artifact, the requirement of <em>local</em> gauge invariance is the fundamental generative principle behind all fundamental interactions in modern physics.
+          </p>
+        </div>
+
+        <!-- Two Equivalent Formulations: 4D QED vs 5D Kaluza-Klein -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="glass-card rounded-2xl p-5 border-blue-500/30 space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-bold text-blue-400 flex items-center space-x-2">
+                <span>1. The 4D Quantum Electrodynamic (QED) View</span>
+              </h3>
+              <span class="text-[10px] mono px-2 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-800">U(1) Phase Symmetry</span>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              If the wave function of a charged fermion undergoes a local space-time dependent phase shift:
+            </p>
+            <div class="p-2.5 bg-slate-950 rounded-lg mono text-xs text-cyan-300 border border-slate-800">
+              ψ(x) → ψ'(x) = e^{i θ(x)} ψ(x)
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              The space-time derivative picks up an extra inhomogeneous gradient term:
+            </p>
+            <div class="p-2.5 bg-slate-950 rounded-lg mono text-xs text-rose-300 border border-slate-800">
+              ∂_μ ψ(x) → e^{i θ(x)} [ ∂_μ ψ(x) + i (∂_μ θ) ψ(x) ]
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              To restore invariance in the Dirac Lagrangian, one is forced to introduce a compensating gauge vector field <span class="mono text-emerald-400">A_μ</span> with the transformation law:
+            </p>
+            <div class="p-2.5 bg-slate-950 rounded-lg mono text-xs text-emerald-300 border border-slate-800">
+              A_μ(x) → A_μ'(x) = A_μ(x) - (ℏc / q) ∂_μ θ(x)
+            </div>
+          </div>
+
+          <div class="glass-card rounded-2xl p-5 border-indigo-500/30 space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-bold text-indigo-400 flex items-center space-x-2">
+                <span>2. The 5D Kaluza-Klein Geometric View</span>
+              </h3>
+              <span class="text-[10px] mono px-2 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-800">5D General Covariance</span>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              In 5D spacetime <span class="mono text-cyan-300">M⁴ × S¹</span>, physics cannot depend on our arbitrary coordinate choice for the <span class="mono text-amber-300">θ = 0</span> seam along the compact circular fiber:
+            </p>
+            <div class="p-2.5 bg-slate-950 rounded-lg mono text-xs text-indigo-300 border border-slate-800">
+              θ → θ' = θ + κ ε(x^μ)
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Under this 5D coordinate diffeomorphism, the off-diagonal metric components <span class="mono text-emerald-400">g̃_{μ4} = φ κ A_μ</span> transform according to tensor transformation laws:
+            </p>
+            <div class="p-2.5 bg-slate-950 rounded-lg mono text-xs text-emerald-300 border border-slate-800">
+              g̃'_{μ4} = g̃_{μ4} + g̃_{44} κ ∂_μ ε(x) ⟹ A_μ → A_μ + ∂_μ ε(x)
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Simultaneously, a matter field with winding mode <span class="mono text-indigo-400">n</span> (<span class="mono text-slate-300">ψ ∝ e^{i n θ}</span>) transforms as:
+            </p>
+            <div class="p-2.5 bg-slate-950 rounded-lg mono text-xs text-cyan-300 border border-slate-800">
+              ψ_n(x) → ψ_n'(x) = e^{-i n κ ε(x)} ψ_n(x)
+            </div>
+          </div>
+        </div>
+
+        <!-- Detailed Physical Implications Grid -->
+        <h3 class="text-lg font-bold text-white pt-2 flex items-center space-x-2">
+          <span>Key Physical Implications & Consequences</span>
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+          <!-- 1. Charge Conservation -->
+          <div class="glass-card rounded-xl p-4 space-y-2 border-emerald-500/20">
+            <div class="flex items-center space-x-2">
+              <span class="text-emerald-400 text-base">⚡</span>
+              <h4 class="text-sm font-bold text-emerald-300">1. Exact Local Charge Conservation</h4>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              By Noether's Theorem, the global <span class="mono text-cyan-300">U(1)</span> symmetry of the Dirac action guarantees a conserved 4-current <span class="mono text-emerald-300">∂_μ J^μ = 0</span>.
+            </p>
+            <p class="text-[11px] text-slate-400 leading-relaxed">
+              <strong>Physical meaning:</strong> Electric charge can never be created or destroyed at a point without flowing through space. Charge cannot "teleport" across space-time.
+            </p>
+          </div>
+
+          <!-- 2. Masslessness of the Photon -->
+          <div class="glass-card rounded-xl p-4 space-y-2 border-cyan-500/20">
+            <div class="flex items-center space-x-2">
+              <span class="text-cyan-400 text-base">✨</span>
+              <h4 class="text-sm font-bold text-cyan-300">2. Strict Masslessness of the Photon</h4>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              A photon mass term in the Lagrangian <span class="mono text-rose-300">½ m_γ² A_μ A^μ</span> explicitly violates gauge invariance because <span class="mono text-rose-300">(A_μ + ∂_μ Λ)² ≠ A_μ²</span>.
+            </p>
+            <p class="text-[11px] text-slate-400 leading-relaxed">
+              <strong>Physical meaning:</strong> Gauge invariance forbids a photon mass, guaranteeing that electromagnetic forces have infinite range and follow the inverse-square law (<span class="mono text-cyan-300">1/r²</span> Coulomb potential).
+            </p>
+          </div>
+
+          <!-- 3. Minimal Coupling & Lorentz Force -->
+          <div class="glass-card rounded-xl p-4 space-y-2 border-blue-500/20">
+            <div class="flex items-center space-x-2">
+              <span class="text-blue-400 text-base">🔗</span>
+              <h4 class="text-sm font-bold text-blue-300">3. Universal Minimal Coupling</h4>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Replacing standard derivatives with covariant derivatives <span class="mono text-cyan-300">D_μ = ∂_μ + i (q/ℏc) A_μ</span> uniquely fixes how electromagnetic fields interact with matter.
+            </p>
+            <p class="text-[11px] text-slate-400 leading-relaxed">
+              <strong>Physical meaning:</strong> The Lorentz Force Law <span class="mono text-cyan-300">F = q(E + v/c × B)</span> is not an ad-hoc empirical rule; it is an inevitable consequence of gauge-covariant kinetic transport.
+            </p>
+          </div>
+
+          <!-- 4. Quantization of Electric Charge -->
+          <div class="glass-card rounded-xl p-4 space-y-2 border-amber-500/20">
+            <div class="flex items-center space-x-2">
+              <span class="text-amber-400 text-base">🔢</span>
+              <h4 class="text-sm font-bold text-amber-300">4. Topological Charge Quantization</h4>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              In Kaluza-Klein geometry, the 5th dimension is a closed circle <span class="mono text-amber-300">S¹</span> of circumference <span class="mono text-amber-300">2πR</span>. Any single-valued wave function must satisfy <span class="mono text-slate-300">ψ(θ + 2π) = ψ(θ)</span>.
+            </p>
+            <p class="text-[11px] text-slate-400 leading-relaxed">
+              <strong>Physical meaning:</strong> Winding numbers must be integers <span class="mono text-amber-400">n ∈ ℤ</span>. This forces electric charge to be discrete and quantized in integer multiples of <span class="mono text-amber-400">e</span>.
+            </p>
+          </div>
+
+          <!-- 5. The "Six Ways" & Field Strength -->
+          <div class="glass-card rounded-xl p-4 space-y-2 border-pink-500/20">
+            <div class="flex items-center space-x-2">
+              <span class="text-pink-400 text-base">📊</span>
+              <h4 class="text-sm font-bold text-pink-300">5. Gauge Invariance of E & B Fields</h4>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              While the 4-potential <span class="mono text-slate-400">A_μ = (Φ, A)</span> contains arbitrary gauge freedom, the field strength tensor <span class="mono text-pink-300">F_μν = ∂_μ A_ν - ∂_ν A_μ</span> is strictly gauge-invariant.
+            </p>
+            <p class="text-[11px] text-slate-400 leading-relaxed">
+              <strong>Physical meaning:</strong> Since second derivatives commute (<span class="mono text-slate-300">∂_μ ∂_ν Λ - ∂_ν ∂_μ Λ = 0</span>), the 6 independent components (<span class="mono text-cyan-300">E_x, E_y, E_z</span> and <span class="mono text-pink-300">B_x, B_y, B_z</span>) remain perfectly observable and identical in all gauges.
+            </p>
+          </div>
+
+          <!-- 6. Aharonov-Bohm Effect & Holonomy -->
+          <div class="glass-card rounded-xl p-4 space-y-2 border-indigo-500/20">
+            <div class="flex items-center space-x-2">
+              <span class="text-indigo-400 text-base">🌀</span>
+              <h4 class="text-sm font-bold text-indigo-300">6. Quantum Holonomy (Aharonov-Bohm)</h4>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Even in regions where <span class="mono text-pink-300">B = 0</span> (e.g. outside a shielded solenoid), the closed loop line integral (Wilson loop) <span class="mono text-cyan-300">∮ A · dx = Φ_B</span> causes observable electron interference.
+            </p>
+            <p class="text-[11px] text-slate-400 leading-relaxed">
+              <strong>Physical meaning:</strong> The gauge potential <span class="mono text-emerald-400">A_μ</span> is not merely a computational tool; it represents a genuine geometric connection on a principal fiber bundle.
+            </p>
+          </div>
+        </div>
+
+        <!-- Comparative Summary Table -->
+        <div class="glass-card rounded-2xl p-5 space-y-3">
+          <h3 class="text-sm font-bold text-white flex items-center space-x-2">
+            <span>Comparison: Gauge Theory vs. 5D Kaluza-Klein Spacetime</span>
+          </h3>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr class="border-b border-slate-800 text-slate-400 font-semibold">
+                  <th class="py-2 px-3">Concept</th>
+                  <th class="py-2 px-3 text-cyan-400">4D Gauge Theory (QED)</th>
+                  <th class="py-2 px-3 text-amber-400">5D Kaluza-Klein Geometry</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-900 text-slate-300 mono text-[11px]">
+                <tr>
+                  <td class="py-2 px-3 font-sans font-medium text-slate-200">Fundamental Symmetry</td>
+                  <td class="py-2 px-3 text-cyan-300">Local U(1) internal phase rotation</td>
+                  <td class="py-2 px-3 text-amber-300">5D General Covariance (diffeomorphism in θ)</td>
+                </tr>
+                <tr>
+                  <td class="py-2 px-3 font-sans font-medium text-slate-200">Electromagnetic Potential A_μ</td>
+                  <td class="py-2 px-3 text-cyan-300">Compensating gauge connection field</td>
+                  <td class="py-2 px-3 text-amber-300">Off-diagonal metric components g̃_{μ4} / (φκ)</td>
+                </tr>
+                <tr>
+                  <td class="py-2 px-3 font-sans font-medium text-slate-200">Origin of Electric Charge</td>
+                  <td class="py-2 px-3 text-cyan-300">Coupling constant / Noether charge</td>
+                  <td class="py-2 px-3 text-amber-300">Quantized compact momentum p_θ = n/R along S¹</td>
+                </tr>
+                <tr>
+                  <td class="py-2 px-3 font-sans font-medium text-slate-200">Matter vs. Antimatter</td>
+                  <td class="py-2 px-3 text-cyan-300">Opposite phase rotation in time</td>
+                  <td class="py-2 px-3 text-amber-300">Clockwise vs. counter-clockwise winding around S¹</td>
+                </tr>
+                <tr>
+                  <td class="py-2 px-3 font-sans font-medium text-slate-200">Maxwell Action Origin</td>
+                  <td class="py-2 px-3 text-cyan-300">Postulated kinetic term -¼ F_μν F^μν</td>
+                  <td class="py-2 px-3 text-amber-300">5D Einstein-Hilbert scalar curvature R̃ (O'Neill's Theorem)</td>
+                </tr>
+                <tr>
+                  <td class="py-2 px-3 font-sans font-medium text-slate-200">Photon Masslessness</td>
+                  <td class="py-2 px-3 text-cyan-300">Forbidden by U(1) gauge invariance</td>
+                  <td class="py-2 px-3 text-amber-300">Inherited from 5D pure massless graviton</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================================================== -->
+    <!-- TAB 9: Grand Theory Synthesis & Unified Conclusion    -->
+    <!-- ==================================================== -->
+    <section id="tab-synthesis" class="tab-content hidden h-full p-6 overflow-y-auto custom-scrollbar">
+      <div class="max-w-5xl mx-auto space-y-6 pb-12">
+
+        <!-- Grand Banner -->
+        <div class="glass-card rounded-2xl p-6 border-indigo-500/30 bg-gradient-to-r from-slate-950 via-indigo-950/40 to-slate-950">
+          <div class="flex items-center space-x-3 mb-2">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 via-indigo-600 to-cyan-500 flex items-center justify-center font-bold text-xl mono text-white shadow-lg shadow-indigo-500/30">
+              U
+            </div>
+            <div>
+              <h2 class="text-xl font-extrabold text-white">Grand Theory Synthesis: The Geometric Nature of Gauge Fields</h2>
+              <p class="text-xs text-indigo-300">Synthesizing Dirac Gauge Symmetries, 5D Compactification, and the Future of Dimensional Unification</p>
+            </div>
+          </div>
+          <p class="text-sm text-slate-300 leading-relaxed mt-3">
+            In modern physics, the question <em>"Why is electromagnetism a thing?"</em> finds two radically different, yet astonishingly equivalent answers: the <strong>Algebraic Perspective</strong> of internal gauge invariance and the <strong>Geometric Perspective</strong> of compact extra dimensions.
+          </p>
+        </div>
+
+        <!-- 3 Core Synthesized Pillars -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Pillar 1 -->
+          <div class="glass-card rounded-xl p-5 border-cyan-500/30 space-y-2.5 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center space-x-2 text-cyan-400 font-bold text-sm mb-1">
+                <span>1. The Gauge Miracle</span>
+              </div>
+              <h4 class="text-xs font-semibold text-white">Phase Freedom Requires Light</h4>
+              <p class="text-xs text-slate-300 leading-relaxed mt-1">
+                Demanding that the quantum phase of matter wave functions be locally arbitrary (<span class="mono text-cyan-300">ψ → e^{iθ(x)}ψ</span>) inevitably forces the existence of the massless photon field <span class="mono text-emerald-300">A_μ</span>, the Faraday tensor <span class="mono text-pink-300">F_μν</span>, Maxwell's equations, and the Lorentz force.
+              </p>
+            </div>
+            <div class="p-2 rounded bg-slate-950/80 border border-slate-800 text-[11px] mono text-cyan-300 text-center">
+              Internal U(1) ⟹ Maxwell Electromagnetism
+            </div>
+          </div>
+
+          <!-- Pillar 2 -->
+          <div class="glass-card rounded-xl p-5 border-amber-500/30 space-y-2.5 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center space-x-2 text-amber-400 font-bold text-sm mb-1">
+                <span>2. The Kaluza Miracle</span>
+              </div>
+              <h4 class="text-xs font-semibold text-white">Gauge Symmetry IS General Covariance</h4>
+              <p class="text-xs text-slate-300 leading-relaxed mt-1">
+                When spacetime has a tiny compact 5th dimension <span class="mono text-amber-300">M⁴ × S¹</span>, local gauge transformations are nothing more than coordinate re-labelings of the circular fiber (<span class="mono text-amber-300">θ → θ + κε</span>). The 5D Einstein-Hilbert action automatically decomposes into 4D Einstein Gravity + 4D Maxwell Electromagnetism.
+              </p>
+            </div>
+            <div class="p-2 rounded bg-slate-950/80 border border-slate-800 text-[11px] mono text-amber-300 text-center">
+              5D Pure Gravity ⟹ 4D Gravity + 4D Photons
+            </div>
+          </div>
+
+          <!-- Pillar 3 -->
+          <div class="glass-card rounded-xl p-5 border-rose-500/30 space-y-2.5 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center space-x-2 text-rose-400 font-bold text-sm mb-1">
+                <span>3. The Flaws & Frontiers</span>
+              </div>
+              <h4 class="text-xs font-semibold text-white">The Charge-Mass Catastrophe</h4>
+              <p class="text-xs text-slate-300 leading-relaxed mt-1">
+                While 5D KK elegantly quantizes charge via winding numbers <span class="mono text-indigo-300">n ∈ ℤ</span>, it couples mass to charge (<span class="mono text-rose-300">m_n = |n|/R</span>). Fixing <span class="mono text-slate-300">q₁ = e</span> predicts <span class="mono text-rose-400">m₁ ~ 10¹⁷ GeV</span>. Thus, standard model fermions must be <span class="mono text-emerald-300">n = 0</span> zero-modes acquiring masses via the Higgs mechanism.
+              </p>
+            </div>
+            <div class="p-2 rounded bg-slate-950/80 border border-slate-800 text-[11px] mono text-rose-300 text-center">
+              SM Matter = KK Zero Modes + Higgs
+            </div>
+          </div>
+        </div>
+
+        <!-- The Splinter in the Brain (Deep Takeaway Card) -->
+        <div class="glass-card rounded-2xl p-6 border-amber-500/30 space-y-4">
+          <h3 class="text-base font-bold text-amber-300 flex items-center space-x-2">
+            <span>🧠 The Splinter in the Brain: What Has Been Seen Cannot Be Unseen</span>
+          </h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            In standard classical physics, electromagnetism feels like an <em>"expansion pack"</em> bolted onto spacetime: you are forced to take it on faith that vector potentials, curls, and pseudo-vectors exist as arbitrary fundamental entities.
+          </p>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Kaluza-Klein theory shatters this arbitrary view. It shows that <strong>electromagnetism looks so much like the geometric fingerprint of a compact 5th dimension that the similarity is impossible to ignore</strong>. Even though vanilla 5D Kaluza-Klein is not a complete Theory of Everything on its own, its mathematical core—the realization that internal gauge forces are the metric textures of curled-up fiber bundles—serves as the foundational cornerstone for:
+          </p>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+            <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1 text-xs">
+              <span class="text-cyan-400 font-bold">11D Supergravity & M-Theory</span>
+              <p class="text-[11px] text-slate-400">
+                Extending the 1D circle <span class="mono text-slate-300">S¹</span> to 7D Calabi-Yau manifolds or 7-spheres naturally incorporates the non-Abelian <span class="mono text-indigo-300">SU(3) × SU(2) × U(1)</span> strong and electroweak nuclear forces.
+              </p>
+            </div>
+            <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1 text-xs">
+              <span class="text-emerald-400 font-bold">Fiber Bundle Differential Geometry</span>
+              <p class="text-[11px] text-slate-400">
+                Yang-Mills gauge fields are connection 1-forms on principal bundles, where curvature 2-forms <span class="mono text-slate-300">F = dA + A ∧ A</span> dictate field strength through pure differential geometry.
+              </p>
+            </div>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-indigo-950/40 border border-indigo-800 text-xs text-indigo-200 text-center font-medium italic">
+            "Whether our universe possesses extra spatial dimensions or whether gauge symmetry is nature's fundamental algebraic code, the two frameworks reflect a single underlying truth: the laws of physics are governed by deep geometric invariance."
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Application Logic -->
+  <script>
+    // Tab Switching
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(tabId).classList.remove('hidden');
+      document.getElementById('btn-' + tabId).classList.add('active');
+
+      if (tabId === 'tab-5d' && resizeThree5D) resizeThree5D();
+      if (tabId === 'tab-gauge' && resizeThreeSpinor) resizeThreeSpinor();
+      if (tabId === 'tab-tower' && towerChart) towerChart.resize();
+      if (tabId === 'tab-lorentz' && resizeThreeLorentz) resizeThreeLorentz();
+      if (tabId === 'tab-coupling' && resizeThreeCoupling) resizeThreeCoupling();
+      if (tabId === 'tab-energy' && energyChart) energyChart.resize();
+    }
+
+    // ==========================================
+    // 1. THREE.JS 5D CYLINDER & JELLO SIMULATION
+    // ==========================================
+    let scene5D, camera5D, renderer5D, controls5D;
+    let cylinderMesh, seamLineMesh, waveRibbonMesh;
+    let animRunning5D = true;
+    let time5D = 0;
+
+    const params5D = {
+      squish: 0.8,
+      freq: 2.0,
+      winding: 1,
+      radius: 1.0
+    };
+
+    function init5DThree() {
+      const container = document.getElementById('three-container-5d');
+      scene5D = new THREE.Scene();
+      scene5D.background = new THREE.Color(0x060913);
+
+      camera5D = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+      camera5D.position.set(0, 4, 8);
+
+      renderer5D = new THREE.WebGLRenderer({ antialias: true });
+      renderer5D.setSize(container.clientWidth, container.clientHeight);
+      renderer5D.setPixelRatio(window.devicePixelRatio);
+      container.appendChild(renderer5D.domElement);
+
+      controls5D = new THREE.OrbitControls(camera5D, renderer5D.domElement);
+      controls5D.enableDamping = true;
+      controls5D.dampingFactor = 0.05;
+
+      // Lighting
+      const ambLight = new THREE.AmbientLight(0xffffff, 0.6);
+      scene5D.add(ambLight);
+      const dirLight = new THREE.DirectionalLight(0x38bdf8, 0.8);
+      dirLight.position.set(5, 10, 7);
+      scene5D.add(dirLight);
+
+      // Create Cylinder Geometry (representing macroscopic X & circular θ)
+      build5DCylinder();
+
+      // Controls Events
+      document.getElementById('slider-squish').addEventListener('input', e => {
+        params5D.squish = parseFloat(e.target.value);
+        document.getElementById('val-squish').innerText = params5D.squish.toFixed(2);
+      });
+      document.getElementById('slider-freq').addEventListener('input', e => {
+        params5D.freq = parseFloat(e.target.value);
+        document.getElementById('val-freq').innerText = params5D.freq.toFixed(2);
+      });
+      document.getElementById('slider-winding').addEventListener('input', e => {
+        params5D.winding = parseInt(e.target.value);
+        document.getElementById('val-winding').innerText = params5D.winding;
+        document.getElementById('hud-winding').innerText = params5D.winding;
+      });
+      document.getElementById('slider-radius').addEventListener('input', e => {
+        params5D.radius = parseFloat(e.target.value);
+        document.getElementById('val-radius').innerText = params5D.radius.toFixed(2);
+        document.getElementById('hud-radius').innerText = params5D.radius.toFixed(2);
+        build5DCylinder();
+      });
+
+      document.getElementById('toggle-anim-btn').addEventListener('click', e => {
+        animRunning5D = !animRunning5D;
+        e.target.innerText = animRunning5D ? 'Pause Rotation' : 'Resume Rotation';
+      });
+
+      document.getElementById('reset-cam-btn').addEventListener('click', () => {
+        camera5D.position.set(0, 4, 8);
+        controls5D.target.set(0, 0, 0);
+      });
+
+      animate5D();
+    }
+
+    function build5DCylinder() {
+      if (cylinderMesh) scene5D.remove(cylinderMesh);
+      if (seamLineMesh) scene5D.remove(seamLineMesh);
+      if (waveRibbonMesh) scene5D.remove(waveRibbonMesh);
+
+      const radius = params5D.radius;
+      const length = 6.0;
+      const radialSegs = 64;
+      const lengthSegs = 100;
+
+      const geom = new THREE.CylinderGeometry(radius, radius, length, radialSegs, lengthSegs, true);
+      const mat = new THREE.MeshStandardMaterial({
+        color: 0x1e293b,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.35,
+        side: THREE.DoubleSide
+      });
+
+      cylinderMesh = new THREE.Mesh(geom, mat);
+      cylinderMesh.rotation.z = Math.PI / 2;
+      scene5D.add(cylinderMesh);
+
+      // Create Seam Line Mesh (θ'(x) = 0 offset curve)
+      const seamGeom = new THREE.BufferGeometry();
+      const seamMat = new THREE.LineBasicMaterial({ color: 0x10b981, linewidth: 3 });
+      seamLineMesh = new THREE.Line(seamGeom, seamMat);
+      scene5D.add(seamLineMesh);
+
+      // Create Wavefunction Ribbon Mesh
+      const waveGeom = new THREE.BufferGeometry();
+      const waveMat = new THREE.LineBasicMaterial({ color: 0x06b6d4, linewidth: 2 });
+      waveRibbonMesh = new THREE.Line(waveGeom, waveMat);
+      scene5D.add(waveRibbonMesh);
+    }
+
+    function update5DGeometry() {
+      const length = 6.0;
+      const segs = 150;
+      const radius = params5D.radius;
+
+      const seamPoints = [];
+      const wavePoints = [];
+
+      for (let i = 0; i <= segs; i++) {
+        const u = (i / segs) - 0.5; // -0.5 to 0.5
+        const x = u * length;
+
+        // Seam offset: ε(x,t) = squish * sin(freq * x - t)
+        const eps = params5D.squish * Math.sin(params5D.freq * x - time5D);
+
+        // Position on cylinder for θ = eps
+        const thetaSeam = eps;
+        const ySeam = radius * Math.cos(thetaSeam);
+        const zSeam = radius * Math.sin(thetaSeam);
+        seamPoints.push(new THREE.Vector3(x, ySeam, zSeam));
+
+        // Wavefunction winding around θ: ψ = e^{i (n θ + kx)}
+        const thetaWave = eps + params5D.winding * (x * 2.0);
+        const yWave = radius * 1.02 * Math.cos(thetaWave);
+        const zWave = radius * 1.02 * Math.sin(thetaWave);
+        wavePoints.push(new THREE.Vector3(x, yWave, zWave));
+      }
+
+      seamLineMesh.geometry.setFromPoints(seamPoints);
+      waveRibbonMesh.geometry.setFromPoints(wavePoints);
+
+      // Induced potential A_x = ∂_x ε
+      const midAx = params5D.squish * params5D.freq * Math.cos(-time5D);
+      document.getElementById('hud-ax').innerText = midAx.toFixed(3);
+    }
+
+    function render2DPhaseCanvas() {
+      const canvas = document.getElementById('canvas-2d-phase');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width = canvas.clientWidth;
+      const h = canvas.height = canvas.clientHeight;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // Center Line
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, h / 2);
+      ctx.lineTo(w, h / 2);
+      ctx.stroke();
+
+      const length = 6.0;
+      const pts = 200;
+
+      // Draw Re(ψ) (Cyan)
+      ctx.strokeStyle = '#06b6d4';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let i = 0; i < pts; i++) {
+        const xCoord = (i / pts - 0.5) * length;
+        const eps = params5D.squish * Math.sin(params5D.freq * xCoord - time5D);
+        // Sampled phase at θ = 0 is e^{-i n κε}
+        const phase = -params5D.winding * eps + xCoord * 2.0;
+        const val = Math.cos(phase);
+        const px = (i / pts) * w;
+        const py = h / 2 - val * (h * 0.35);
+        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+
+      // Draw Im(ψ) (Pink)
+      ctx.strokeStyle = '#f43f5e';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      for (let i = 0; i < pts; i++) {
+        const xCoord = (i / pts - 0.5) * length;
+        const eps = params5D.squish * Math.sin(params5D.freq * xCoord - time5D);
+        const phase = -params5D.winding * eps + xCoord * 2.0;
+        const val = Math.sin(phase);
+        const px = (i / pts) * w;
+        const py = h / 2 - val * (h * 0.35);
+        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Draw A_x(x) (Emerald)
+      ctx.strokeStyle = '#10b981';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      for (let i = 0; i < pts; i++) {
+        const xCoord = (i / pts - 0.5) * length;
+        const ax = params5D.squish * params5D.freq * Math.cos(params5D.freq * xCoord - time5D);
+        const px = (i / pts) * w;
+        const py = h / 2 - (ax / 3.0) * (h * 0.35);
+        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+    }
+
+    function animate5D() {
+      requestAnimationFrame(animate5D);
+      if (animRunning5D) {
+        time5D += 0.025;
+        cylinderMesh.rotation.x = time5D * 0.2;
+      }
+      update5DGeometry();
+      controls5D.update();
+      renderer5D.render(scene5D, camera5D);
+      render2DPhaseCanvas();
+    }
+
+    function resizeThree5D() {
+      const container = document.getElementById('three-container-5d');
+      if (!container || !renderer5D) return;
+      camera5D.aspect = container.clientWidth / container.clientHeight;
+      camera5D.updateProjectionMatrix();
+      renderer5D.setSize(container.clientWidth, container.clientHeight);
+    }
+
+    // ==========================================
+    // 2. DIRAC BISPINORS & SPINOR FLAGS TAB
+    // ==========================================
+    let spinorType = 'electron';
+    let spinMix = 0.5;
+    let spinPhase = 0.0;
+    let gaugeGrad = 1.5;
+    let spinorTime = 0;
+
+    let sceneSpinor, cameraSpinor, rendererSpinor, flagMesh;
+
+    function initSpinorThree() {
+      const container = document.getElementById('three-spinor-container');
+      if (!container) return;
+
+      sceneSpinor = new THREE.Scene();
+      sceneSpinor.background = new THREE.Color(0x060913);
+
+      cameraSpinor = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 50);
+      cameraSpinor.position.set(0, 2.5, 4.5);
+
+      rendererSpinor = new THREE.WebGLRenderer({ antialias: true });
+      rendererSpinor.setSize(container.clientWidth, container.clientHeight);
+      container.appendChild(rendererSpinor.domElement);
+
+      const ambLight = new THREE.AmbientLight(0xffffff, 0.8);
+      sceneSpinor.add(ambLight);
+
+      // Create Flag Mesh: Pole + Flag Cloth
+      flagMesh = new THREE.Group();
+
+      const poleGeom = new THREE.CylinderGeometry(0.04, 0.04, 2.0, 16);
+      const poleMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.8, roughness: 0.2 });
+      const pole = new THREE.Mesh(poleGeom, poleMat);
+      flagMesh.add(pole);
+
+      const flagGeom = new THREE.PlaneGeometry(0.8, 0.6);
+      flagGeom.translate(0.4, 0.6, 0);
+      const flagMat = new THREE.MeshStandardMaterial({ color: 0x06b6d4, side: THREE.DoubleSide });
+      const cloth = new THREE.Mesh(flagGeom, flagMat);
+      flagMesh.add(cloth);
+
+      sceneSpinor.add(flagMesh);
+
+      // Spinor Controls
+      document.getElementById('slider-spin-mix').addEventListener('input', e => {
+        spinMix = parseFloat(e.target.value);
+        const upPct = Math.round((1 - spinMix) * 100);
+        document.getElementById('val-spin-mix').innerText = `${upPct}% Up / ${100 - upPct}% Down`;
+      });
+      document.getElementById('slider-spin-phase').addEventListener('input', e => {
+        spinPhase = parseFloat(e.target.value);
+        document.getElementById('val-spin-phase').innerText = `${spinPhase.toFixed(2)} rad (${Math.round(spinPhase * 180 / Math.PI)}°)`;
+      });
+      document.getElementById('slider-gauge-grad').addEventListener('input', e => {
+        gaugeGrad = parseFloat(e.target.value);
+        document.getElementById('val-gauge-grad').innerText = gaugeGrad.toFixed(2);
+      });
+
+      animateSpinor();
+    }
+
+    function setSpinorType(type) {
+      spinorType = type;
+      document.getElementById('btn-spinor-e').className = type === 'electron' ? 'px-3 py-1 text-xs rounded bg-blue-600 text-white font-medium' : 'px-3 py-1 text-xs rounded bg-slate-800 text-slate-300 hover:text-white';
+      document.getElementById('btn-spinor-p').className = type === 'positron' ? 'px-3 py-1 text-xs rounded bg-blue-600 text-white font-medium' : 'px-3 py-1 text-xs rounded bg-slate-800 text-slate-300 hover:text-white';
+    }
+
+    function renderComplexPlane() {
+      const canvas = document.getElementById('canvas-complex-plane');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width = canvas.clientWidth;
+      const h = canvas.height = canvas.clientHeight;
+      const cx = w / 2, cy = h / 2;
+      const r = Math.min(w, h) * 0.4;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // Circle Axes
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+      ctx.moveTo(cx - r - 10, cy); ctx.lineTo(cx + r + 10, cy);
+      ctx.moveTo(cx, cy - r - 10); ctx.lineTo(cx, cy + r + 10);
+      ctx.stroke();
+
+      const timeDir = spinorType === 'electron' ? -1 : 1;
+      const globalPhase = timeDir * spinorTime * 2.0;
+
+      // Component A (Spin Up)
+      const ampA = Math.sqrt(1 - spinMix) * r;
+      const ax = cx + ampA * Math.cos(globalPhase);
+      const ay = cy + ampA * Math.sin(globalPhase);
+
+      ctx.strokeStyle = '#06b6d4';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(ax, ay);
+      ctx.stroke();
+      ctx.fillStyle = '#06b6d4';
+      ctx.beginPath(); ctx.arc(ax, ay, 4, 0, 2 * Math.PI); ctx.fill();
+
+      // Component B (Spin Down)
+      const ampB = Math.sqrt(spinMix) * r;
+      const bx = cx + ampB * Math.cos(globalPhase + spinPhase);
+      const by = cy + ampB * Math.sin(globalPhase + spinPhase);
+
+      ctx.strokeStyle = '#f43f5e';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(bx, by);
+      ctx.stroke();
+      ctx.fillStyle = '#f43f5e';
+      ctx.beginPath(); ctx.arc(bx, by, 4, 0, 2 * Math.PI); ctx.fill();
+
+      document.getElementById('spin-a-val').innerText = Math.sqrt(1 - spinMix).toFixed(2);
+      document.getElementById('spin-b-val').innerText = `${Math.sqrt(spinMix).toFixed(2)} e^{i ${spinPhase.toFixed(2)}}`;
+    }
+
+    function renderSpinorField() {
+      const canvas = document.getElementById('canvas-spinor-field');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width = canvas.clientWidth;
+      const h = canvas.height = canvas.clientHeight;
+
+      ctx.clearRect(0, 0, w, h);
+      const cols = 28, rows = 6;
+      const timeDir = spinorType === 'electron' ? -1 : 1;
+
+      for (let i = 0; i < cols; i++) {
+        for (let j = 0; j < rows; j++) {
+          const x = (i + 0.5) * (w / cols);
+          const y = (j + 0.5) * (h / rows);
+          const phase = timeDir * (spinorTime * 2.0) + (i / cols) * gaugeGrad * 6.28;
+
+          const len = 7;
+          const dx = len * Math.cos(phase);
+          const dy = len * Math.sin(phase);
+
+          ctx.strokeStyle = `hsl(${(phase * 180 / Math.PI) % 360}, 85%, 60%)`;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(x, y);
+          ctx.lineTo(x + dx, y + dy);
+          ctx.stroke();
+        }
+      }
+    }
+
+    function animateSpinor() {
+      requestAnimationFrame(animateSpinor);
+      spinorTime += 0.03;
+
+      // Compute 3D Flag orientation from Bispinor
+      const theta = 2.0 * Math.acos(Math.sqrt(1 - spinMix)); // Zenith
+      const phi = spinPhase; // Azimuth
+      const nx = Math.sin(theta) * Math.cos(phi);
+      const ny = Math.cos(theta);
+      const nz = Math.sin(theta) * Math.sin(phi);
+
+      const targetVec = new THREE.Vector3(nx, ny, nz).normalize();
+      flagMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), targetVec);
+
+      const timeDir = spinorType === 'electron' ? -1 : 1;
+      flagMesh.rotateOnAxis(new THREE.Vector3(0, 1, 0), timeDir * spinorTime * 4.0);
+
+      document.getElementById('flag-nx').innerText = nx.toFixed(2);
+      document.getElementById('flag-ny').innerText = ny.toFixed(2);
+      document.getElementById('flag-nz').innerText = nz.toFixed(2);
+      document.getElementById('flag-angle').innerText = `${Math.round((spinorTime * 4.0 * 180 / Math.PI) % 360)}°`;
+
+      rendererSpinor.render(sceneSpinor, cameraSpinor);
+      renderComplexPlane();
+      renderSpinorField();
+    }
+
+    function resizeThreeSpinor() {
+      const container = document.getElementById('three-spinor-container');
+      if (!container || !rendererSpinor) return;
+      cameraSpinor.aspect = container.clientWidth / container.clientHeight;
+      cameraSpinor.updateProjectionMatrix();
+      rendererSpinor.setSize(container.clientWidth, container.clientHeight);
+    }
+
+    // ==========================================
+    // 3. METRIC DECOMPOSITION TAB CALCULATOR
+    // ==========================================
+    function initMetricTab() {
+      const phiSlider = document.getElementById('slider-metric-phi');
+      const a0Slider = document.getElementById('slider-metric-a0');
+      const a1Slider = document.getElementById('slider-metric-a1');
+      const kappaSlider = document.getElementById('slider-metric-kappa');
+
+      function updateMetricCalc() {
+        const phi = parseFloat(phiSlider.value);
+        const a0 = parseFloat(a0Slider.value);
+        const a1 = parseFloat(a1Slider.value);
+        const kappa = parseFloat(kappaSlider.value);
+
+        document.getElementById('metric-phi-val').innerText = phi.toFixed(2);
+        document.getElementById('metric-a0-val').innerText = `${a0.toFixed(2)} V`;
+        document.getElementById('metric-a1-val').innerText = `${a1.toFixed(2)} T·m`;
+        document.getElementById('metric-kappa-val').innerText = kappa.toFixed(2);
+
+        // Update Matrix Display
+        const g04 = phi * kappa * a0;
+        const g14 = phi * kappa * a1;
+
+        document.getElementById('m-04').innerText = g04.toFixed(2);
+        document.getElementById('m-40').innerText = g04.toFixed(2);
+        document.getElementById('m-14').innerText = g14.toFixed(2);
+        document.getElementById('m-41').innerText = g14.toFixed(2);
+        document.getElementById('m-44').innerText = (-phi).toFixed(2);
+
+        // Curvature & Det
+        const det = -phi * 1.0;
+        document.getElementById('calc-det').innerText = det.toFixed(2);
+
+        // Simplified field strength twist
+        const f01 = 1.2; // Sample Ex
+        const twist = 0.25 * (kappa * kappa) * phi * (f01 * f01);
+        document.getElementById('calc-twist').innerText = `+${twist.toFixed(3)}`;
+        document.getElementById('calc-r5').innerText = `+${twist.toFixed(3)}`;
+      }
+
+      phiSlider.addEventListener('input', updateMetricCalc);
+      a0Slider.addEventListener('input', updateMetricCalc);
+      a1Slider.addEventListener('input', updateMetricCalc);
+      kappaSlider.addEventListener('input', updateMetricCalc);
+      updateMetricCalc();
+    }
+
+    // ==========================================
+    // 4. KK TOWER & CHARGE-MASS CATASTROPHE TAB
+    // ==========================================
+    let towerChart;
+
+    function initTowerChart() {
+      const ctx = document.getElementById('chart-kk-tower');
+      if (!ctx) return;
+
+      const labels = ['n = -3', 'n = -2', 'n = -1', 'n = 0 (SM)', 'n = +1', 'n = +2', 'n = +3'];
+      const masses = [15.6, 10.4, 5.2, 0.0, 5.2, 10.4, 15.6]; // In 10^17 GeV
+      const charges = [-3, -2, -1, 0, 1, 2, 3];
+
+      towerChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Tower Mass m_n (×10¹⁷ GeV)',
+              data: masses,
+              backgroundColor: 'rgba(244, 63, 94, 0.7)',
+              borderColor: 'rgba(244, 63, 94, 1)',
+              borderWidth: 1,
+              yAxisID: 'y'
+            },
+            {
+              label: 'Quantized Charge q_n (in units of e)',
+              data: charges,
+              type: 'line',
+              borderColor: 'rgba(6, 182, 212, 1)',
+              backgroundColor: 'rgba(6, 182, 212, 0.2)',
+              borderWidth: 2,
+              pointRadius: 5,
+              yAxisID: 'y1'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              type: 'linear',
+              position: 'left',
+              title: { display: true, text: 'Mass (10¹⁷ GeV)', color: '#f43f5e' },
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: { color: '#94a3b8' }
+            },
+            y1: {
+              type: 'linear',
+              position: 'right',
+              title: { display: true, text: 'Electric Charge (e)', color: '#06b6d4' },
+              grid: { drawOnChartArea: false },
+              ticks: { color: '#94a3b8' }
+            },
+            x: {
+              ticks: { color: '#94a3b8' },
+              grid: { color: 'rgba(255, 255, 255, 0.05)' }
+            }
+          },
+          plugins: {
+            legend: { labels: { color: '#e2e8f0' } }
+          }
+        }
+      });
+
+      const inspectSlider = document.getElementById('slider-inspect-n');
+      inspectSlider.addEventListener('input', e => {
+        const n = parseInt(e.target.value);
+        document.getElementById('inspect-n-val').innerText = `n = ${n}`;
+
+        if (n === 0) {
+          document.getElementById('inspect-dir').innerText = 'Neutral (Zero Winding)';
+          document.getElementById('inspect-charge').innerText = '0.00 e (Neutral)';
+          document.getElementById('inspect-mass').innerText = '0.00 GeV (SM Zero-Mode)';
+        } else if (n > 0) {
+          document.getElementById('inspect-dir').innerText = 'Clockwise (Positive Charge)';
+          document.getElementById('inspect-charge').innerText = `+${n}.00 e (+${(n * 1.602).toFixed(3)} × 10⁻¹⁹ C)`;
+          document.getElementById('inspect-mass').innerText = `${(n * 5.2).toFixed(1)} × 10¹⁷ GeV`;
+        } else {
+          document.getElementById('inspect-dir').innerText = 'Counter-Clockwise (Negative Charge)';
+          document.getElementById('inspect-charge').innerText = `${n}.00 e (${(n * 1.602).toFixed(3)} × 10⁻¹⁹ C)`;
+          document.getElementById('inspect-mass').innerText = `${(Math.abs(n) * 5.2).toFixed(1)} × 10¹⁷ GeV`;
+        }
+      });
+    }
+
+    // ==========================================
+    // 5. RELATIVISTIC LORENTZ FORCE SIMULATOR
+    // ==========================================
+    let sceneLorentz, cameraLorentz, rendererLorentz, controlsLorentz;
+    let particleMesh, trailMesh;
+    let trailPoints = [];
+
+    const simParams = {
+      Ey: 0.0,
+      Bz: 2.0,
+      q: -1.0,
+      vx: 0.6
+    };
+
+    let pPos = new THREE.Vector3(-4, 0, 0);
+    let pVel = new THREE.Vector3(0.6, 0, 0);
+
+    function initLorentzThree() {
+      const container = document.getElementById('three-lorentz-container');
+      if (!container) return;
+
+      sceneLorentz = new THREE.Scene();
+      sceneLorentz.background = new THREE.Color(0x060913);
+
+      cameraLorentz = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 50);
+      cameraLorentz.position.set(0, 0, 10);
+
+      rendererLorentz = new THREE.WebGLRenderer({ antialias: true });
+      rendererLorentz.setSize(container.clientWidth, container.clientHeight);
+      container.appendChild(rendererLorentz.domElement);
+
+      controlsLorentz = new THREE.OrbitControls(cameraLorentz, rendererLorentz.domElement);
+
+      // Grid helper
+      const grid = new THREE.GridHelper(10, 10, 0x334155, 0x1e293b);
+      grid.rotation.x = Math.PI / 2;
+      sceneLorentz.add(grid);
+
+      // Particle Mesh
+      const pGeom = new THREE.SphereGeometry(0.2, 16, 16);
+      const pMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+      particleMesh = new THREE.Mesh(pGeom, pMat);
+      sceneLorentz.add(particleMesh);
+
+      // Trail Mesh
+      const trailGeom = new THREE.BufferGeometry();
+      const trailMat = new THREE.LineBasicMaterial({ color: 0x06b6d4, linewidth: 2 });
+      trailMesh = new THREE.Line(trailGeom, trailMat);
+      sceneLorentz.add(trailMesh);
+
+      // Controls
+      document.getElementById('slider-sim-ey').addEventListener('input', e => {
+        simParams.Ey = parseFloat(e.target.value);
+        document.getElementById('sim-ey-val').innerText = `${simParams.Ey.toFixed(2)} V/m`;
+      });
+      document.getElementById('slider-sim-bz').addEventListener('input', e => {
+        simParams.Bz = parseFloat(e.target.value);
+        document.getElementById('sim-bz-val').innerText = `${simParams.Bz.toFixed(2)} T`;
+      });
+      document.getElementById('slider-sim-vx').addEventListener('input', e => {
+        simParams.vx = parseFloat(e.target.value);
+        document.getElementById('sim-vx-val').innerText = `${simParams.vx.toFixed(2)} c`;
+        resetParticleSim();
+      });
+
+      document.getElementById('btn-reset-sim').addEventListener('click', resetParticleSim);
+
+      animateLorentz();
+    }
+
+    function setSimCharge(q) {
+      simParams.q = q;
+      document.getElementById('sim-q-val').innerText = q < 0 ? 'Electron (-e)' : 'Positron (+e)';
+      document.getElementById('btn-sim-neg').className = q < 0 ? 'py-1 px-2 text-xs rounded bg-blue-600 text-white font-medium' : 'py-1 px-2 text-xs rounded bg-slate-800 text-slate-300 hover:text-white font-medium';
+      document.getElementById('btn-sim-pos').className = q > 0 ? 'py-1 px-2 text-xs rounded bg-blue-600 text-white font-medium' : 'py-1 px-2 text-xs rounded bg-slate-800 text-slate-300 hover:text-white font-medium';
+      particleMesh.material.color.setHex(q < 0 ? 0x38bdf8 : 0xf43f5e);
+      trailMesh.material.color.setHex(q < 0 ? 0x06b6d4 : 0xf43f5e);
+      resetParticleSim();
+    }
+
+    function resetParticleSim() {
+      pPos.set(-4, 0, 0);
+      pVel.set(simParams.vx * 3.0, 0, 0);
+      trailPoints = [];
+    }
+
+    function animateLorentz() {
+      requestAnimationFrame(animateLorentz);
+
+      const dt = 0.02;
+
+      // Lorentz acceleration: a = (q/m) * (E + v × B)
+      const ax = simParams.q * (pVel.y * simParams.Bz);
+      const ay = simParams.q * (simParams.Ey - pVel.x * simParams.Bz);
+
+      pVel.x += ax * dt;
+      pVel.y += ay * dt;
+
+      pPos.x += pVel.x * dt;
+      pPos.y += pVel.y * dt;
+
+      if (Math.abs(pPos.x) > 6 || Math.abs(pPos.y) > 6) {
+        resetParticleSim();
+      }
+
+      particleMesh.position.copy(pPos);
+
+      trailPoints.push(pPos.clone());
+      if (trailPoints.length > 250) trailPoints.shift();
+      trailMesh.geometry.setFromPoints(trailPoints);
+
+      controlsLorentz.update();
+      rendererLorentz.render(sceneLorentz, cameraLorentz);
+    }
+
+    function resizeThreeLorentz() {
+      const container = document.getElementById('three-lorentz-container');
+      if (!container || !rendererLorentz) return;
+      cameraLorentz.aspect = container.clientWidth / container.clientHeight;
+      cameraLorentz.updateProjectionMatrix();
+      rendererLorentz.setSize(container.clientWidth, container.clientHeight);
+    }
+
+    // ============================================================
+    // 6. GAUGE FIELD & PARTICLE TRAJECTORY COUPLING SIMULATOR
+    // ============================================================
+    let sceneCoupling, cameraCoupling, rendererCoupling, controlsCoupling;
+    let couplingParticleMesh, couplingTrailMesh, helixTrailMesh;
+    let fieldArrowsGroup, solenoidMesh;
+    let arrowPkin, arrowQA, arrowPcan;
+
+    let couplingPreset = 'solenoid';
+    let coupStrength = 2.0;
+    let coupCharge = -1.0;
+    let lambdaShift = 0.0;
+    let showFieldGrid = true;
+    let viewMode5D = false;
+
+    let cPos = new THREE.Vector3(-3.0, 1.8, 0.0);
+    let cVel = new THREE.Vector3(1.2, 0.2, 0.0);
+    let cTheta = 0.0; // 5th compact coordinate
+    let cTrail = [];
+    let cHelixTrail = [];
+    let accumPhase = 0.0;
+
+    function getGaugePotentialA(x, y, z) {
+      let Ax = 0, Ay = 0, Az = 0;
+      const r2 = x * x + y * y + 0.01;
+      const r = Math.sqrt(r2);
+
+      if (couplingPreset === 'solenoid') {
+        // Aharonov-Bohm vortex: A_φ = Φ / (2π r) ⟹ A = (-y, x, 0) * (B0 R0² / 2r²)
+        const aCore = 0.6;
+        const factor = (coupStrength * 0.8) / (r2 + aCore * aCore);
+        Ax = -y * factor;
+        Ay = x * factor;
+      } else if (couplingPreset === 'landau') {
+        // Landau gauge / Symmetric gauge: A = ½ B × r = (-½ B y, ½ B x, 0)
+        Ax = -0.5 * coupStrength * y;
+        Ay = 0.5 * coupStrength * x;
+      } else if (couplingPreset === 'drift') {
+        // Crossed E x B drift: A_y = B_z * x
+        Ax = 0;
+        Ay = coupStrength * x * 0.4;
+      } else if (couplingPreset === 'coulomb') {
+        // Central potential field
+        const factor = (coupStrength * 0.5) / Math.pow(r, 1.5);
+        Ax = -x * factor;
+        Ay = -y * factor;
+      }
+
+      // Add Gauge Transformation Gradient: ∇Λ
+      // Λ(x,y) = Λ₀ * sin(x * 0.8) * cos(y * 0.8)
+      if (Math.abs(lambdaShift) > 0.001) {
+        Ax += lambdaShift * 0.8 * Math.cos(x * 0.8) * Math.cos(y * 0.8);
+        Ay += -lambdaShift * 0.8 * Math.sin(x * 0.8) * Math.sin(y * 0.8);
+      }
+
+      return new THREE.Vector3(Ax, Ay, Az);
+    }
+
+    function getPhysicalLorentzAcc(pos, vel) {
+      let Ex = 0, Ey = 0, Ez = 0;
+      let Bx = 0, By = 0, Bz = 0;
+      const r2 = pos.x * pos.x + pos.y * pos.y + 0.01;
+      const r = Math.sqrt(r2);
+
+      if (couplingPreset === 'solenoid') {
+        // Pure B inside solenoid core (r < aCore), B ≈ 0 outside!
+        const aCore = 0.8;
+        if (r < aCore) {
+          Bz = coupStrength * 3.0;
+        } else {
+          Bz = 0.02 * (coupStrength / r2); // Tiny leakage
+        }
+      } else if (couplingPreset === 'landau') {
+        Bz = coupStrength;
+      } else if (couplingPreset === 'drift') {
+        Ey = 1.0;
+        Bz = coupStrength;
+      } else if (couplingPreset === 'coulomb') {
+        const f = (coupStrength * 1.5) / Math.pow(r, 2.5);
+        Ex = -pos.x * f;
+        Ey = -pos.y * f;
+      }
+
+      // Lorentz Force a = (q/m) * (E + v × B)
+      const q = coupCharge;
+      const ax = q * (Ex + vel.y * Bz - vel.z * By);
+      const ay = q * (Ey + vel.z * Bx - vel.x * Bz);
+      const az = q * (Ez + vel.x * By - vel.y * Bx);
+
+      return new THREE.Vector3(ax, ay, az);
+    }
+
+    function initCouplingThree() {
+      const container = document.getElementById('three-coupling-container');
+      if (!container) return;
+
+      sceneCoupling = new THREE.Scene();
+      sceneCoupling.background = new THREE.Color(0x060913);
+
+      cameraCoupling = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 50);
+      cameraCoupling.position.set(0, 0, 11);
+
+      rendererCoupling = new THREE.WebGLRenderer({ antialias: true });
+      rendererCoupling.setSize(container.clientWidth, container.clientHeight);
+      rendererCoupling.setPixelRatio(window.devicePixelRatio);
+      container.appendChild(rendererCoupling.domElement);
+
+      controlsCoupling = new THREE.OrbitControls(cameraCoupling, rendererCoupling.domElement);
+      controlsCoupling.enableDamping = true;
+
+      // Grid helper
+      const grid = new THREE.GridHelper(12, 12, 0x334155, 0x1e293b);
+      grid.rotation.x = Math.PI / 2;
+      sceneCoupling.add(grid);
+
+      // Solenoid Cylinder for Aharonov-Bohm
+      const solGeom = new THREE.CylinderGeometry(0.7, 0.7, 3, 32);
+      const solMat = new THREE.MeshStandardMaterial({
+        color: 0x6366f1,
+        transparent: true,
+        opacity: 0.35,
+        wireframe: true
+      });
+      solenoidMesh = new THREE.Mesh(solGeom, solMat);
+      solenoidMesh.rotation.x = Math.PI / 2;
+      sceneCoupling.add(solenoidMesh);
+
+      // Vector Field Arrows Group
+      fieldArrowsGroup = new THREE.Group();
+      sceneCoupling.add(fieldArrowsGroup);
+      buildFieldArrowsGrid();
+
+      // Particle Mesh
+      const pGeom = new THREE.SphereGeometry(0.18, 16, 16);
+      const pMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x0284c7 });
+      couplingParticleMesh = new THREE.Mesh(pGeom, pMat);
+      sceneCoupling.add(couplingParticleMesh);
+
+      // Trail Mesh (4D Trajectory)
+      const trailGeom = new THREE.BufferGeometry();
+      const trailMat = new THREE.LineBasicMaterial({ color: 0x06b6d4, linewidth: 2 });
+      couplingTrailMesh = new THREE.Line(trailGeom, trailMat);
+      sceneCoupling.add(couplingTrailMesh);
+
+      // 5D Geodesic Helix Trail Mesh (theta as Z-offset)
+      const helixGeom = new THREE.BufferGeometry();
+      const helixMat = new THREE.LineBasicMaterial({ color: 0xa855f7, linewidth: 2 });
+      helixTrailMesh = new THREE.Line(helixGeom, helixMat);
+      helixTrailMesh.visible = false;
+      sceneCoupling.add(helixTrailMesh);
+
+      // Three Momentum Arrows (Attached to particle)
+      arrowPkin = new THREE.ArrowHelper(new THREE.Vector3(1, 0, 0), new THREE.Vector3(0, 0, 0), 1, 0x06b6d4, 0.25, 0.15);
+      arrowQA = new THREE.ArrowHelper(new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, 0, 0), 1, 0x10b981, 0.25, 0.15);
+      arrowPcan = new THREE.ArrowHelper(new THREE.Vector3(1, 1, 0), new THREE.Vector3(0, 0, 0), 1, 0xf59e0b, 0.25, 0.15);
+
+      sceneCoupling.add(arrowPkin);
+      sceneCoupling.add(arrowQA);
+      sceneCoupling.add(arrowPcan);
+
+      // Controls Events
+      document.getElementById('slider-coup-strength').addEventListener('input', e => {
+        coupStrength = parseFloat(e.target.value);
+        document.getElementById('val-coup-strength').innerText = coupStrength.toFixed(2);
+        buildFieldArrowsGrid();
+      });
+
+      document.getElementById('slider-coup-charge').addEventListener('input', e => {
+        coupCharge = parseFloat(e.target.value);
+        document.getElementById('val-coup-charge').innerText = `${coupCharge.toFixed(2)} e`;
+      });
+
+      document.getElementById('slider-lambda-shift').addEventListener('input', e => {
+        lambdaShift = parseFloat(e.target.value);
+        document.getElementById('val-lambda-shift').innerText = lambdaShift.toFixed(2);
+        buildFieldArrowsGrid();
+      });
+
+      document.getElementById('btn-zero-gauge').addEventListener('click', () => {
+        lambdaShift = 0.0;
+        document.getElementById('slider-lambda-shift').value = 0;
+        document.getElementById('val-lambda-shift').innerText = '0.00';
+        buildFieldArrowsGrid();
+      });
+
+      document.getElementById('btn-toggle-field-arrows').addEventListener('click', () => {
+        showFieldGrid = !showFieldGrid;
+        fieldArrowsGroup.visible = showFieldGrid;
+      });
+
+      document.getElementById('toggle-viewmode-btn').addEventListener('click', e => {
+        viewMode5D = !viewMode5D;
+        e.target.innerText = viewMode5D ? 'View: 5D Geodesic Helix' : 'View: 4D Spacetime';
+        helixTrailMesh.visible = viewMode5D;
+        if (viewMode5D) {
+          cameraCoupling.position.set(4, 5, 8);
+        } else {
+          cameraCoupling.position.set(0, 0, 11);
+        }
+      });
+
+      document.getElementById('reset-coupling-sim-btn').addEventListener('click', resetCouplingParticle);
+
+      resetCouplingParticle();
+      animateCoupling();
+    }
+
+    function setCouplingPreset(preset) {
+      couplingPreset = preset;
+      document.querySelectorAll('#tab-coupling button[id^="btn-pre-"]').forEach(btn => {
+        btn.className = 'p-2 text-xs rounded-lg bg-slate-800 text-slate-300 hover:text-white text-left border border-slate-700';
+      });
+      document.getElementById('btn-pre-' + preset).className = 'p-2 text-xs rounded-lg bg-blue-600 text-white font-medium text-left border border-blue-400/30';
+
+      const modeNames = {
+        solenoid: 'Aharonov-Bohm Vortex',
+        landau: 'Landau Magnetic Field',
+        drift: 'E × B Crossed Drift',
+        coulomb: 'Central Coulomb Well'
+      };
+      document.getElementById('hud-gauge-mode').innerText = modeNames[preset];
+      solenoidMesh.visible = (preset === 'solenoid');
+
+      buildFieldArrowsGrid();
+      resetCouplingParticle();
+    }
+
+    function buildFieldArrowsGrid() {
+      // Clear existing arrows
+      while (fieldArrowsGroup.children.length > 0) {
+        fieldArrowsGroup.remove(fieldArrowsGroup.children[0]);
+      }
+
+      const gridRange = 4.5;
+      const step = 0.9;
+
+      for (let x = -gridRange; x <= gridRange; x += step) {
+        for (let y = -gridRange; y <= gridRange; y += step) {
+          const pos = new THREE.Vector3(x, y, 0);
+          const A = getGaugePotentialA(x, y, 0);
+          const len = A.length();
+          if (len > 0.05) {
+            const dir = A.clone().normalize();
+            const arrowLen = Math.min(len * 0.45, 0.7);
+            const arrow = new THREE.ArrowHelper(dir, pos, arrowLen, 0x10b981, 0.15, 0.08);
+            fieldArrowsGroup.add(arrow);
+          }
+        }
+      }
+    }
+
+    function resetCouplingParticle() {
+      cTrail = [];
+      cHelixTrail = [];
+      accumPhase = 0.0;
+      cTheta = 0.0;
+
+      if (couplingPreset === 'solenoid') {
+        cPos.set(-3.2, 1.8, 0.0);
+        cVel.set(1.4, 0.0, 0.0);
+      } else if (couplingPreset === 'landau') {
+        cPos.set(-1.8, 0.0, 0.0);
+        cVel.set(0.0, 1.8, 0.0);
+      } else if (couplingPreset === 'drift') {
+        cPos.set(-3.5, -1.0, 0.0);
+        cVel.set(0.2, 1.5, 0.0);
+      } else if (couplingPreset === 'coulomb') {
+        cPos.set(-2.2, 0.0, 0.0);
+        cVel.set(0.0, 1.6, 0.0);
+      }
+    }
+
+    function animateCoupling() {
+      requestAnimationFrame(animateCoupling);
+
+      const dt = 0.018;
+
+      // 1. Calculate physical acceleration via gauge-invariant Lorentz force
+      const acc = getPhysicalLorentzAcc(cPos, cVel);
+      cVel.addScaledVector(acc, dt);
+      const deltaPos = cVel.clone().multiplyScalar(dt);
+      cPos.add(deltaPos);
+
+      // 2. Evaluate Local Gauge Potential A(x) at particle position
+      const A_local = getGaugePotentialA(cPos.x, cPos.y, cPos.z);
+      const qA = A_local.clone().multiplyScalar(coupCharge);
+
+      // 3. 5D Coordinate θ Evolution: dθ/dτ = u^4 = (u_4 / -φ) + κ A_μ u^μ
+      const kappa = 1.0;
+      const u4_conserved = -coupCharge; // Conserved 5th momentum
+      const dTheta = (u4_conserved + kappa * (A_local.x * cVel.x + A_local.y * cVel.y)) * dt;
+      cTheta += dTheta;
+
+      // Accumulated geometric phase: ∫ (q/ℏ) A · dx
+      accumPhase += coupCharge * (A_local.x * deltaPos.x + A_local.y * deltaPos.y);
+
+      // 4. Update Particle Position & Vectors
+      couplingParticleMesh.position.copy(cPos);
+
+      // Update Momentum Vectors at particle position
+      const pKin = cVel.clone().multiplyScalar(1.0); // m = 1
+      const pCan = pKin.clone().add(qA);
+
+      const pKinLen = pKin.length();
+      const qALen = qA.length();
+      const pCanLen = pCan.length();
+
+      arrowPkin.position.copy(cPos);
+      if (pKinLen > 0.01) {
+        arrowPkin.setDirection(pKin.clone().normalize());
+        arrowPkin.setLength(Math.min(pKinLen * 0.8, 2.5), 0.2, 0.1);
+      }
+
+      arrowQA.position.copy(cPos);
+      if (qALen > 0.01) {
+        arrowQA.setDirection(qA.clone().normalize());
+        arrowQA.setLength(Math.min(qALen * 0.8, 2.5), 0.2, 0.1);
+      }
+
+      arrowPcan.position.copy(cPos);
+      if (pCanLen > 0.01) {
+        arrowPcan.setDirection(pCan.clone().normalize());
+        arrowPcan.setLength(Math.min(pCanLen * 0.8, 2.5), 0.2, 0.1);
+      }
+
+      // Update Trails
+      cTrail.push(cPos.clone());
+      if (cTrail.length > 350) cTrail.shift();
+      couplingTrailMesh.geometry.setFromPoints(cTrail);
+
+      // 5D Helix Trail: z-axis depicts compact θ winding
+      const helixPos = new THREE.Vector3(cPos.x, cPos.y, (Math.sin(cTheta) * 1.2));
+      cHelixTrail.push(helixPos);
+      if (cHelixTrail.length > 350) cHelixTrail.shift();
+      helixTrailMesh.geometry.setFromPoints(cHelixTrail);
+
+      // Telemetry HUD Update
+      document.getElementById('hud-pkin').innerText = pKinLen.toFixed(2);
+      document.getElementById('hud-qA').innerText = qALen.toFixed(2);
+      document.getElementById('hud-Pcan').innerText = pCanLen.toFixed(2);
+      document.getElementById('hud-phase-int').innerText = `${accumPhase.toFixed(2)} rad`;
+      document.getElementById('hud-u4').innerText = u4_conserved.toFixed(3);
+
+      // Energy Conservation & Hamiltonian Calculations
+      updateEnergyMetrics(cPos, cVel);
+
+      // Boundary reset
+      if (cPos.length() > 6.5) {
+        resetCouplingParticle();
+      }
+
+      controlsCoupling.update();
+      rendererCoupling.render(sceneCoupling, cameraCoupling);
+    }
+
+    // ============================================================
+    // 7. ENERGY CONSERVATION & HAMILTONIAN EVOLUTION ENGINE
+    // ============================================================
+    let energyChart;
+    let energyHistory = {
+      labels: [],
+      hTot: [],
+      tKin: [],
+      vPot: [],
+      wMag: []
+    };
+    let initialHTot = null;
+    let energyChartPaused = false;
+    let simStepCount = 0;
+
+    function getPotentialEnergyV(x, y) {
+      const r2 = x * x + y * y + 0.05;
+      const r = Math.sqrt(r2);
+
+      if (couplingPreset === 'coulomb') {
+        return coupCharge * (-2.0 / r);
+      } else if (couplingPreset === 'drift') {
+        // Uniform E_y = 1.0 V/m ⟹ Φ(y) = -E_y * y ⟹ V = q Φ = -q * y
+        return -coupCharge * 1.0 * y;
+      }
+      return 0.0; // Static magnetic / pure Aharonov-Bohm fields have V = 0
+    }
+
+    function updateEnergyMetrics(pos, vel) {
+      const v2 = vel.x * vel.x + vel.y * vel.y + vel.z * vel.z;
+      const tKin = 0.5 * 1.0 * v2; // m = 1
+      const vPot = getPotentialEnergyV(pos.x, pos.y);
+      const hTot = tKin + vPot;
+
+      if (initialHTot === null || isNaN(initialHTot)) {
+        initialHTot = Math.abs(hTot) < 0.001 ? 0.001 : hTot;
+      }
+
+      const driftPct = (Math.abs(hTot - initialHTot) / Math.abs(initialHTot)) * 100.0;
+      const h5d = (coupCharge * coupCharge) + (2.0 * hTot);
+
+      // Update Dashboard Metric Cards
+      const elH = document.getElementById('dash-htot');
+      const elDrift = document.getElementById('dash-drift');
+      const elT = document.getElementById('dash-tkin');
+      const elV = document.getElementById('dash-vpot');
+      const elW = document.getElementById('dash-wb');
+      const elH5 = document.getElementById('dash-h5d');
+
+      if (elH) elH.innerText = `${hTot.toFixed(3)} J`;
+      if (elDrift) elDrift.innerText = `${driftPct.toFixed(3)} %`;
+      if (elT) elT.innerText = `${tKin.toFixed(3)} J`;
+      if (elV) elV.innerText = `${vPot.toFixed(3)} J`;
+      if (elW) elW.innerText = `0.000 J`;
+      if (elH5) elH5.innerText = `${h5d.toFixed(3)} m²`;
+
+      // Update Rolling Chart every 2 steps
+      simStepCount++;
+      if (energyChart && !energyChartPaused && simStepCount % 2 === 0) {
+        const timeLabel = (simStepCount * 0.018).toFixed(1) + 's';
+        energyHistory.labels.push(timeLabel);
+        energyHistory.hTot.push(hTot);
+        energyHistory.tKin.push(tKin);
+        energyHistory.vPot.push(vPot);
+        energyHistory.wMag.push(0.0);
+
+        if (energyHistory.labels.length > 80) {
+          energyHistory.labels.shift();
+          energyHistory.hTot.shift();
+          energyHistory.tKin.shift();
+          energyHistory.vPot.shift();
+          energyHistory.wMag.shift();
+        }
+
+        energyChart.data.labels = energyHistory.labels;
+        energyChart.data.datasets[0].data = energyHistory.hTot;
+        energyChart.data.datasets[1].data = energyHistory.tKin;
+        energyChart.data.datasets[2].data = energyHistory.vPot;
+        energyChart.data.datasets[3].data = energyHistory.wMag;
+        energyChart.update('none'); // Optimized non-animating update
+      }
+    }
+
+    function initEnergyChart() {
+      const ctx = document.getElementById('chart-energy-evolution');
+      if (!ctx) return;
+
+      energyChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: energyHistory.labels,
+          datasets: [
+            {
+              label: 'Total Hamiltonian ℋ = T + V (J)',
+              data: energyHistory.hTot,
+              borderColor: '#f59e0b',
+              backgroundColor: 'rgba(245, 158, 11, 0.1)',
+              borderWidth: 2.5,
+              pointRadius: 0,
+              tension: 0.1
+            },
+            {
+              label: 'Kinetic Energy T_kin (J)',
+              data: energyHistory.tKin,
+              borderColor: '#06b6d4',
+              backgroundColor: 'transparent',
+              borderWidth: 2,
+              pointRadius: 0,
+              tension: 0.1
+            },
+            {
+              label: 'Potential Energy V = qΦ (J)',
+              data: energyHistory.vPot,
+              borderColor: '#f43f5e',
+              backgroundColor: 'transparent',
+              borderWidth: 2,
+              pointRadius: 0,
+              tension: 0.1
+            },
+            {
+              label: 'Magnetic Work Done W_B (J)',
+              data: energyHistory.wMag,
+              borderColor: '#6366f1',
+              backgroundColor: 'transparent',
+              borderWidth: 1.5,
+              borderDash: [4, 4],
+              pointRadius: 0
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: false,
+          scales: {
+            y: {
+              title: { display: true, text: 'Energy (Joules)', color: '#94a3b8' },
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: { color: '#94a3b8' }
+            },
+            x: {
+              title: { display: true, text: 'Simulation Time', color: '#94a3b8' },
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: { color: '#64748b', maxTicksLimit: 10 }
+            }
+          },
+          plugins: {
+            legend: {
+              labels: { color: '#e2e8f0', boxWidth: 14, font: { family: 'Inter', size: 11 } }
+            }
+          }
+        }
+      });
+
+      document.getElementById('btn-pause-energy-chart').addEventListener('click', e => {
+        energyChartPaused = !energyChartPaused;
+        e.target.innerText = energyChartPaused ? 'Resume Chart' : 'Pause Chart';
+      });
+
+      document.getElementById('btn-clear-energy-chart').addEventListener('click', () => {
+        energyHistory = { labels: [], hTot: [], tKin: [], vPot: [], wMag: [] };
+        initialHTot = null;
+        if (energyChart) {
+          energyChart.data.labels = [];
+          energyChart.data.datasets.forEach(d => d.data = []);
+          energyChart.update();
+        }
+      });
+    }
+
+    function resizeThreeCoupling() {
+      const container = document.getElementById('three-coupling-container');
+      if (!container || !rendererCoupling) return;
+      cameraCoupling.aspect = container.clientWidth / container.clientHeight;
+      cameraCoupling.updateProjectionMatrix();
+      rendererCoupling.setSize(container.clientWidth, container.clientHeight);
+    }
+
+    // Global Initialization
+    window.addEventListener('DOMContentLoaded', () => {
+      init5DThree();
+      initSpinorThree();
+      initMetricTab();
+      initTowerChart();
+      initLorentzThree();
+      initCouplingThree();
+      initEnergyChart();
+    });
+
+    window.addEventListener('resize', () => {
+      resizeThree5D();
+      resizeThreeSpinor();
+      resizeThreeLorentz();
+      resizeThreeCoupling();
+    });
+  </script>
+</body>
+</html>
