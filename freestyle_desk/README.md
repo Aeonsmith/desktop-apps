@@ -35,8 +35,9 @@ A desktop shortcut named **Freestyle Desk** launches the same command with `pyth
 1. Drop a `.wav` or `.mp3` into `Desktop\Freestyle Sessions\Beats`. The **Beats folder** button opens that folder. Then press **Refresh**.
 2. Press **Play**. Loop start and end are in seconds. An end of `0` loops the whole file. BPM is a label you type. It is not detected, and the empty slots under the pad stay empty.
 3. Write in the pad, or leave it blank and freestyle. Finish a word with a space, comma, or Enter. Rhymes appear in the margin. Clicking one does not insert it.
-4. **Typeset** breaks on breaths you already marked (line breaks and punctuation) and spaces couplets. It does not change words.
-5. **Record** starts the beat if one is loaded, then captures the mic only. The beat is not mixed into the vocal file. Stop writes the take. There is no save dialog.
+4. **Warm-up** asks the Gib89erish engine for syllable scraps at the BPM you typed. Coherence stays at 0, so it does not turn them into a verse. The scraps land in the margin. **Bones** shows the vowel skeleton of the line you already wrote. Neither button changes the pad.
+5. **Typeset** breaks on breaths you already marked (line breaks and punctuation) and spaces couplets. It does not change words.
+6. **Record** starts the beat if one is loaded, then captures the mic only. The beat is not mixed into the vocal file. Stop writes the take. There is no save dialog.
 
 Each take lands in `Desktop\Freestyle Sessions\YYYY-MM-DD HH-mm\` as `vocal.wav`, `lyrics.txt`, and `session.txt`. A `Latest` shortcut in that folder points at the newest take. Rename and star from the filmstrip. **Load** puts that take's lyrics in the pad. **Replay** starts the beat at the position where recording began and plays the vocal with it.
 

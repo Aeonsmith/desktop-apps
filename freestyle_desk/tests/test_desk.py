@@ -17,6 +17,7 @@ from freestyle_desk.audio import (
     read_loop_block,
     save_vocal,
 )
+from freestyle_desk.gibber import bones_text, format_warmup, leave_pad, warmup_lines
 from freestyle_desk.rhymes import RhymeIndex, apply_lookup, default_dict_path, last_completed_word
 from freestyle_desk.typeset import typeset
 from freestyle_desk.vault import Vault, parse_session
@@ -210,6 +211,27 @@ class VaultTests(unittest.TestCase):
         self.assertEqual(self.vault.list_beats(), [])
 
 
+class GibberTests(unittest.TestCase):
+    def test_warmup_stays_out_of_the_pad(self):
+        pad = "my own line stays"
+        lines, source = warmup_lines(bpm=140, bars=4, seed=3)
+        self.assertIs(leave_pad(pad), pad)
+        self.assertEqual(len(lines), 4)
+        self.assertEqual(source, "Gib89erish")
+        margin = format_warmup(lines, source)
+        self.assertIn("Not a verse", margin)
+        self.assertNotIn(pad, margin)
+        for line in lines:
+            self.assertNotIn("#", line)
+            self.assertNotIn("(", line)
+
+    def test_bones_use_their_vowels(self):
+        index = RhymeIndex.from_text("LIGHT  L AY1 T\n")
+        pad = "in the light"
+        self.assertEqual(bones_text(pad, index), "in the ay")
+        self.assertEqual(bones_text("", index), "Write a line first.")
+
+
 class GuiContractTests(unittest.TestCase):
     def test_rhyme_handler_does_not_insert(self):
         from freestyle_desk.app import DeskApp
@@ -220,6 +242,12 @@ class GuiContractTests(unittest.TestCase):
         self.assertIn("apply_lookup", source)
         app_source = Path(inspect.getfile(DeskApp)).read_text(encoding="utf-8")
         self.assertNotIn("filedialog", app_source)
+        warmup = inspect.getsource(DeskApp._warmup)
+        bones = inspect.getsource(DeskApp._bones)
+        self.assertNotIn("pad.insert", warmup)
+        self.assertNotIn("pad.delete", warmup)
+        self.assertNotIn("pad.insert", bones)
+        self.assertNotIn("pad.delete", bones)
 
 
 if __name__ == "__main__":

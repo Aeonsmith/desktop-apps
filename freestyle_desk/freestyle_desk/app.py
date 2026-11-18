@@ -10,6 +10,7 @@ from pathlib import Path
 import customtkinter as ctk
 
 from .audio import Engine, beat_slot_index, beat_suffixes, parse_bpm, parse_seconds, pocket_slots
+from .gibber import bones_text, format_warmup, leave_pad, warmup_lines
 from .rhymes import RhymeIndex, apply_lookup, load_default_index
 from .typeset import typeset
 from .vault import Vault, parse_session
@@ -136,7 +137,8 @@ class DeskApp(ctk.CTk):
         margin_card = ctk.CTkFrame(workspace, fg_color=self.c_card, corner_radius=12, border_width=1, border_color=self.c_border, width=280)
         margin_card.grid(row=0, column=1, sticky="nsew")
         margin_card.grid_propagate(False)
-        ctk.CTkLabel(margin_card, text="Rhymes", text_color=self.c_accent, font=ctk.CTkFont(size=13, weight="bold")).pack(anchor="w", padx=12, pady=(8, 0))
+        self.margin_title = ctk.CTkLabel(margin_card, text="Rhymes", text_color=self.c_accent, font=ctk.CTkFont(size=13, weight="bold"))
+        self.margin_title.pack(anchor="w", padx=12, pady=(8, 0))
         self.margin = ctk.CTkTextbox(
             margin_card,
             fg_color=self.c_input,
@@ -164,11 +166,29 @@ class DeskApp(ctk.CTk):
         ctk.CTkButton(
             actions,
             text="Typeset",
-            width=120,
+            width=88,
             height=44,
             fg_color="#34382c",
             hover_color="#454a3a",
             command=self._typeset,
+        ).pack(side="left", padx=(0, 6))
+        ctk.CTkButton(
+            actions,
+            text="Warm-up",
+            width=88,
+            height=44,
+            fg_color="#34382c",
+            hover_color="#454a3a",
+            command=self._warmup,
+        ).pack(side="left", padx=(0, 6))
+        ctk.CTkButton(
+            actions,
+            text="Bones",
+            width=72,
+            height=44,
+            fg_color="#34382c",
+            hover_color="#454a3a",
+            command=self._bones,
         ).pack(side="left")
 
         self.film = ctk.CTkScrollableFrame(
@@ -190,7 +210,8 @@ class DeskApp(ctk.CTk):
     def _set_status(self, text: str) -> None:
         self.status_var.set(text)
 
-    def _set_margin(self, text: str) -> None:
+    def _set_margin(self, text: str, title: str = "Rhymes") -> None:
+        self.margin_title.configure(text=title)
         self.margin.delete("1.0", "end")
         self.margin.insert("1.0", text)
 
@@ -208,6 +229,19 @@ class DeskApp(ctk.CTk):
         self.pad.insert("1.0", sheet)
         self._on_pad_key()
         self._set_status("Typeset. Words unchanged.")
+
+    def _warmup(self) -> None:
+        pad = self.pad.get("1.0", "end-1c")
+        lines, source = warmup_lines(parse_bpm(self.bpm_entry.get()))
+        leave_pad(pad)
+        self._set_margin(format_warmup(lines, source), title="Warm-up")
+        self._set_status(f"Warm-up from {source}. The pad was not changed.")
+
+    def _bones(self) -> None:
+        pad = self.pad.get("1.0", "end-1c")
+        leave_pad(pad)
+        self._set_margin(bones_text(pad, self.index), title="Bones")
+        self._set_status("Bones of the pad. The words were not changed.")
 
     def _loop_values(self) -> tuple[float, float]:
         return parse_seconds(self.loop_start.get()), parse_seconds(self.loop_end.get())
