@@ -10,7 +10,7 @@ from pathlib import Path
 import customtkinter as ctk
 
 from .audio import Engine, beat_slot_index, beat_suffixes, parse_bpm, parse_seconds, pocket_slots
-from .gibber import bones_text, format_warmup, leave_pad, warmup_lines
+from .gibber import bones_text, format_warmup, leave_pad, session_lyrics, warmup_lines
 from .rhymes import RhymeIndex, apply_lookup, load_default_index
 from .typeset import typeset
 from .vault import Vault, parse_session
@@ -26,6 +26,7 @@ class DeskApp(ctk.CTk):
         self.index = index if index is not None else load_default_index()
         self.engine = Engine()
         self._rec_mark: float | None = None
+        self._scrap_lines: list[str] = []
         self._slot_count = len(pocket_slots())
 
         self.title("Freestyle Desk")
@@ -234,6 +235,7 @@ class DeskApp(ctk.CTk):
         pad = self.pad.get("1.0", "end-1c")
         lines, source = warmup_lines(parse_bpm(self.bpm_entry.get()))
         leave_pad(pad)
+        self._scrap_lines = list(lines)
         self._set_margin(format_warmup(lines, source), title="Warm-up")
         self._set_status(f"Warm-up from {source}. The pad was not changed.")
 
@@ -355,7 +357,8 @@ class DeskApp(ctk.CTk):
             "record_started_at": stamp,
             "created": stamp,
         }
-        lyrics = self.pad.get("1.0", "end-1c")
+        pad = self.pad.get("1.0", "end-1c")
+        lyrics = session_lyrics(pad, self._scrap_lines)
         return self.vault.write_session(when, samples, sample_rate, lyrics, meta)
 
     def _paint_slots(self, index: int | None) -> None:

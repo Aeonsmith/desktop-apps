@@ -17,7 +17,7 @@ from freestyle_desk.audio import (
     read_loop_block,
     save_vocal,
 )
-from freestyle_desk.gibber import bones_text, format_warmup, leave_pad, warmup_lines
+from freestyle_desk.gibber import bones_text, format_warmup, leave_pad, session_lyrics, warmup_lines
 from freestyle_desk.rhymes import RhymeIndex, apply_lookup, default_dict_path, last_completed_word
 from freestyle_desk.typeset import typeset
 from freestyle_desk.vault import Vault, parse_session
@@ -224,6 +224,15 @@ class GibberTests(unittest.TestCase):
         for line in lines:
             self.assertNotIn("#", line)
             self.assertNotIn("(", line)
+
+    def test_session_saves_margin_scraps(self):
+        scraps = ["skreckna glay", "blowz sill"]
+        self.assertEqual(session_lyrics("", scraps), "skreckna glay\nblowz sill\n")
+        saved = session_lyrics("my own line", scraps)
+        self.assertTrue(saved.startswith("my own line\n\n"))
+        self.assertIn("skreckna glay", saved)
+        self.assertEqual(session_lyrics("my own line", []), "my own line")
+        self.assertIs(leave_pad("my own line"), "my own line")
 
     def test_bones_use_their_vowels(self):
         index = RhymeIndex.from_text("LIGHT  L AY1 T\n")

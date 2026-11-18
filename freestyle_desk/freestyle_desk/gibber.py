@@ -118,6 +118,18 @@ def leave_pad(pad_text: str) -> str:
     return pad_text
 
 
+def session_lyrics(pad_text: str, scrap_lines: list[str] | None) -> str:
+    """Pad text plus the margin scraps, for lyrics.txt. The pad widget is not edited."""
+    scraps = [line.strip() for line in (scrap_lines or []) if line and line.strip()]
+    pad = pad_text.rstrip("\n")
+    if not scraps:
+        return pad
+    scrap_block = "\n".join(scraps)
+    if not pad.strip():
+        return scrap_block + "\n"
+    return f"{pad}\n\n{scrap_block}\n"
+
+
 def bones_text(text: str, index) -> str:
     """Vowel skeleton of a line the writer already typed. Unknown words stay put."""
     if not text or not text.strip():
