@@ -13,6 +13,7 @@ from .audio import save_vocal
 SESSION_FIELDS = (
     "name",
     "starred",
+    "tag",
     "beat",
     "loop_start",
     "loop_end",

@@ -10,7 +10,7 @@ from pathlib import Path
 import customtkinter as ctk
 
 from .audio import Engine, beat_slot_index, beat_suffixes, parse_bpm, parse_seconds, pocket_slots
-from .gibber import bones_text, format_warmup, leave_pad, session_lyrics, warmup_lines
+from .gibber import HAPPY_ACCIDENT, bones_text, format_warmup, happy_accident_tag, leave_pad, session_lyrics, warmup_lines
 from .rhymes import RhymeIndex, apply_lookup, load_default_index
 from .typeset import typeset
 from .vault import Vault, parse_session
@@ -195,7 +195,7 @@ class DeskApp(ctk.CTk):
         self.film = ctk.CTkScrollableFrame(
             self,
             orientation="horizontal",
-            height=128,
+            height=150,
             fg_color=self.c_card,
             corner_radius=12,
             border_width=1,
@@ -338,7 +338,8 @@ class DeskApp(ctk.CTk):
             return
         self._refresh_filmstrip()
         extra = "" if result.shortcut_ok else f" Shortcut failed: {result.shortcut_error}"
-        self._set_status(f"Saved {result.folder.name}.{extra}")
+        tagged = " Tagged happy accident." if happy_accident_tag(self._scrap_lines) else ""
+        self._set_status(f"Saved {result.folder.name}.{extra}{tagged}")
 
     def _write_take(self, samples, sample_rate: int, when: datetime | None = None, beat_position: float = 0.0):
         when = when or datetime.now()
@@ -346,6 +347,7 @@ class DeskApp(ctk.CTk):
         bpm = parse_bpm(self.bpm_entry.get())
         beat = str(self.engine.beat_path) if self.engine.beat_path else ""
         stamp = when.strftime("%Y-%m-%dT%H:%M:%S")
+        tag = happy_accident_tag(self._scrap_lines)
         meta = {
             "name": "",
             "starred": "0",
@@ -357,6 +359,8 @@ class DeskApp(ctk.CTk):
             "record_started_at": stamp,
             "created": stamp,
         }
+        if tag:
+            meta["tag"] = tag
         pad = self.pad.get("1.0", "end-1c")
         lyrics = session_lyrics(pad, self._scrap_lines)
         return self.vault.write_session(when, samples, sample_rate, lyrics, meta)
@@ -396,10 +400,26 @@ class DeskApp(ctk.CTk):
             ctk.CTkLabel(self.film, text=f"+{extra} older in the folder", text_color=self.c_muted).pack(side="left", padx=8)
 
     def _add_card(self, info) -> None:
-        card = ctk.CTkFrame(self.film, fg_color=self.c_input, corner_radius=8, width=200, height=112)
+        tagged = info.meta.get("tag") == HAPPY_ACCIDENT
+        card = ctk.CTkFrame(
+            self.film,
+            fg_color=self.c_input,
+            corner_radius=8,
+            width=200,
+            height=128 if tagged else 112,
+            border_width=1 if tagged else 0,
+            border_color=self.c_accent,
+        )
         card.pack(side="left", padx=6, pady=4)
         card.pack_propagate(False)
         ctk.CTkLabel(card, text=info.folder.name, text_color=self.c_muted, font=ctk.CTkFont(size=11)).pack(anchor="w", padx=8, pady=(6, 0))
+        if tagged:
+            ctk.CTkLabel(
+                card,
+                text=HAPPY_ACCIDENT,
+                text_color=self.c_accent,
+                font=ctk.CTkFont(size=11, weight="bold"),
+            ).pack(anchor="w", padx=8)
         entry = ctk.CTkEntry(card, width=176, height=28, placeholder_text="name")
         if info.meta.get("name"):
             entry.insert(0, info.meta["name"])

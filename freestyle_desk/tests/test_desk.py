@@ -17,7 +17,7 @@ from freestyle_desk.audio import (
     read_loop_block,
     save_vocal,
 )
-from freestyle_desk.gibber import bones_text, format_warmup, leave_pad, session_lyrics, warmup_lines
+from freestyle_desk.gibber import HAPPY_ACCIDENT, bones_text, format_warmup, happy_accident_tag, leave_pad, session_lyrics, warmup_lines
 from freestyle_desk.rhymes import RhymeIndex, apply_lookup, default_dict_path, last_completed_word
 from freestyle_desk.typeset import typeset
 from freestyle_desk.vault import Vault, parse_session
@@ -210,6 +210,21 @@ class VaultTests(unittest.TestCase):
         self.assertEqual(meta["beat"], r"C:\Beats\my loop.wav")
         self.assertEqual(self.vault.list_beats(), [])
 
+    def test_happy_accident_tag_survives_rename(self):
+        when = datetime(2026, 11, 18, 8, 2, 0)
+        result = self.vault.write_session(
+            when,
+            np.zeros((4, 1), np.float32),
+            44100,
+            "skreckna glay\n",
+            {"tag": "happy accident", "beat": r"C:\Beats\my loop.wav"},
+        )
+        self.vault.update_session(result.folder, name="kept")
+        meta = parse_session((result.folder / "session.txt").read_text(encoding="utf-8"))
+        self.assertEqual(meta["tag"], "happy accident")
+        self.assertEqual(meta["name"], "kept")
+        self.assertEqual(meta["beat"], r"C:\Beats\my loop.wav")
+
 
 class GibberTests(unittest.TestCase):
     def test_warmup_stays_out_of_the_pad(self):
@@ -224,6 +239,11 @@ class GibberTests(unittest.TestCase):
         for line in lines:
             self.assertNotIn("#", line)
             self.assertNotIn("(", line)
+
+    def test_scraps_are_tagged_happy_accident(self):
+        self.assertEqual(happy_accident_tag(["skreckna glay"]), HAPPY_ACCIDENT)
+        self.assertEqual(happy_accident_tag([]), "")
+        self.assertEqual(happy_accident_tag(["  "]), "")
 
     def test_session_saves_margin_scraps(self):
         scraps = ["skreckna glay", "blowz sill"]
