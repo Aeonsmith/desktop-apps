@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import subprocess
 from dataclasses import dataclass
 from datetime import datetime
@@ -55,6 +56,23 @@ def parse_session(text: str) -> dict:
 
 def _ps_quote(path: Path) -> str:
     return str(path).replace("'", "''")
+
+
+def _powershell_exes() -> list[str]:
+    """Full paths first. A pythonw launch often has no PowerShell on PATH."""
+    windir = os.environ.get("SystemRoot", r"C:\Windows")
+    candidates = [
+        Path(windir) / "System32" / "WindowsPowerShell" / "v1.0" / "powershell.exe",
+        Path(os.environ.get("ProgramFiles", r"C:\Program Files")) / "PowerShell" / "7" / "pwsh.exe",
+    ]
+    found = [str(path) for path in candidates if path.is_file()]
+    for name in ("pwsh", "powershell"):
+        from shutil import which
+
+        located = which(name)
+        if located and located not in found:
+            found.append(located)
+    return found
 
 
 @dataclass
@@ -129,7 +147,19 @@ class Vault:
             "$s.Save()"
         )
         errors = []
-        for executable in ("pwsh", "powershell"):
+        try:
+            import win32com.client
+
+            shell = win32com.client.Dispatch("WScript.Shell")
+            shortcut = shell.CreateShortcut(str(link))
+            shortcut.TargetPath = str(target)
+            shortcut.Save()
+            if link.is_file():
+                return link
+            errors.append("win32com: shortcut was not written")
+        except Exception as exc:
+            errors.append(f"win32com: {exc}")
+        for executable in _powershell_exes():
             try:
                 completed = subprocess.run(
                     [executable, "-NoProfile", "-NonInteractive", "-Command", script],
@@ -140,7 +170,7 @@ class Vault:
             except OSError as exc:
                 errors.append(f"{executable}: {exc}")
                 continue
-            if completed.returncode == 0 and link.exists():
+            if completed.returncode == 0 and link.is_file():
                 return link
             detail = (completed.stderr or completed.stdout or "shortcut failed").strip()
             errors.append(f"{executable}: {detail}")
