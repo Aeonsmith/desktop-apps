@@ -17,7 +17,16 @@ from freestyle_desk.audio import (
     read_loop_block,
     save_vocal,
 )
-from freestyle_desk.gibber import HAPPY_ACCIDENT, bones_text, format_warmup, happy_accident_tag, leave_pad, session_lyrics, warmup_lines
+from freestyle_desk.gibber import (
+    HAPPY_ACCIDENT,
+    bones_text,
+    format_warmup,
+    happy_accident_tag,
+    leave_pad,
+    scraps_file_text,
+    session_lyrics,
+    warmup_lines,
+)
 from freestyle_desk.rhymes import RhymeIndex, apply_lookup, default_dict_path, last_completed_word
 from freestyle_desk.typeset import typeset
 from freestyle_desk.vault import Vault, parse_session
@@ -225,6 +234,23 @@ class VaultTests(unittest.TestCase):
         self.assertEqual(meta["name"], "kept")
         self.assertEqual(meta["beat"], r"C:\Beats\my loop.wav")
 
+    def test_scraps_session_has_no_vocal(self):
+        when = datetime(2026, 11, 18, 9, 5, 0)
+        result = self.vault.write_scraps_session(
+            when,
+            "my line\n\nskreckna glay\n",
+            "skreckna glay\n",
+            {"bpm": "90.000"},
+        )
+        self.assertTrue(result.shortcut_ok, result.shortcut_error)
+        self.assertFalse((result.folder / "vocal.wav").exists())
+        self.assertEqual((result.folder / "scraps.txt").read_text(encoding="utf-8"), "skreckna glay\n")
+        self.assertIn("skreckna glay", (result.folder / "lyrics.txt").read_text(encoding="utf-8"))
+        meta = parse_session((result.folder / "session.txt").read_text(encoding="utf-8"))
+        self.assertEqual(meta["kind"], "scraps")
+        self.assertEqual(meta["tag"], "happy accident")
+        self.assertEqual(self.vault.list_sessions()[0].folder, result.folder)
+
 
 class GibberTests(unittest.TestCase):
     def test_warmup_stays_out_of_the_pad(self):
@@ -239,6 +265,10 @@ class GibberTests(unittest.TestCase):
         for line in lines:
             self.assertNotIn("#", line)
             self.assertNotIn("(", line)
+
+    def test_scraps_file_text(self):
+        self.assertEqual(scraps_file_text(["skreckna glay", "  "]), "skreckna glay\n")
+        self.assertEqual(scraps_file_text([]), "")
 
     def test_scraps_are_tagged_happy_accident(self):
         self.assertEqual(happy_accident_tag(["skreckna glay"]), HAPPY_ACCIDENT)
@@ -277,6 +307,9 @@ class GuiContractTests(unittest.TestCase):
         self.assertNotIn("pad.delete", warmup)
         self.assertNotIn("pad.insert", bones)
         self.assertNotIn("pad.delete", bones)
+        save_scraps = inspect.getsource(DeskApp._save_scraps)
+        self.assertNotIn("pad.insert", save_scraps)
+        self.assertNotIn("pad.delete", save_scraps)
 
 
 if __name__ == "__main__":

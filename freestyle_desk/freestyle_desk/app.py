@@ -10,7 +10,7 @@ from pathlib import Path
 import customtkinter as ctk
 
 from .audio import Engine, beat_slot_index, beat_suffixes, parse_bpm, parse_seconds, pocket_slots
-from .gibber import HAPPY_ACCIDENT, bones_text, format_warmup, happy_accident_tag, leave_pad, session_lyrics, warmup_lines
+from .gibber import HAPPY_ACCIDENT, bones_text, format_warmup, happy_accident_tag, leave_pad, scraps_file_text, session_lyrics, warmup_lines
 from .rhymes import RhymeIndex, apply_lookup, load_default_index
 from .typeset import typeset
 from .vault import Vault, parse_session
@@ -184,6 +184,15 @@ class DeskApp(ctk.CTk):
         ).pack(side="left", padx=(0, 6))
         ctk.CTkButton(
             actions,
+            text="Save scraps",
+            width=104,
+            height=44,
+            fg_color="#34382c",
+            hover_color="#454a3a",
+            command=self._save_scraps,
+        ).pack(side="left", padx=(0, 6))
+        ctk.CTkButton(
+            actions,
             text="Bones",
             width=72,
             height=44,
@@ -231,13 +240,46 @@ class DeskApp(ctk.CTk):
         self._on_pad_key()
         self._set_status("Typeset. Words unchanged.")
 
-    def _warmup(self) -> None:
+    def _generate_scraps(self) -> str:
         pad = self.pad.get("1.0", "end-1c")
         lines, source = warmup_lines(parse_bpm(self.bpm_entry.get()))
         leave_pad(pad)
         self._scrap_lines = list(lines)
         self._set_margin(format_warmup(lines, source), title="Warm-up")
+        return source
+
+    def _warmup(self) -> None:
+        source = self._generate_scraps()
         self._set_status(f"Warm-up from {source}. The pad was not changed.")
+
+    def _save_scraps(self) -> None:
+        if not self._scrap_lines:
+            self._generate_scraps()
+        scraps = scraps_file_text(self._scrap_lines)
+        if not scraps:
+            self._set_status("No scraps to save.")
+            return
+        pad = self.pad.get("1.0", "end-1c")
+        start, end = self._loop_values()
+        when = datetime.now()
+        meta = {
+            "name": "",
+            "starred": "0",
+            "tag": HAPPY_ACCIDENT,
+            "beat": str(self.engine.beat_path) if self.engine.beat_path else "",
+            "loop_start": f"{start:.3f}",
+            "loop_end": f"{end:.3f}",
+            "bpm": f"{parse_bpm(self.bpm_entry.get()):.3f}",
+            "beat_position": "0.000",
+        }
+        try:
+            result = self.vault.write_scraps_session(when, session_lyrics(pad, self._scrap_lines), scraps, meta)
+        except Exception as exc:
+            self._set_status(f"Scraps not saved: {exc}")
+            return
+        self._refresh_filmstrip()
+        extra = "" if result.shortcut_ok else f" Shortcut failed: {result.shortcut_error}"
+        self._set_status(f"Saved scraps to {result.folder.name}.{extra} Tagged happy accident.")
 
     def _bones(self) -> None:
         pad = self.pad.get("1.0", "end-1c")
@@ -363,7 +405,8 @@ class DeskApp(ctk.CTk):
             meta["tag"] = tag
         pad = self.pad.get("1.0", "end-1c")
         lyrics = session_lyrics(pad, self._scrap_lines)
-        return self.vault.write_session(when, samples, sample_rate, lyrics, meta)
+        scraps = scraps_file_text(self._scrap_lines)
+        return self.vault.write_session(when, samples, sample_rate, lyrics, meta, scraps=scraps or None)
 
     def _paint_slots(self, index: int | None) -> None:
         for slot_index, slot in enumerate(self.slot_frames):
@@ -464,7 +507,10 @@ class DeskApp(ctk.CTk):
         meta = parse_session((folder / "session.txt").read_text(encoding="utf-8"))
         vocal = folder / "vocal.wav"
         if not vocal.exists():
-            self._set_status("No vocal in that session.")
+            if meta.get("kind") == "scraps":
+                self._set_status("That session is scraps only. Load the lyrics.")
+            else:
+                self._set_status("No vocal in that session.")
             return
         beat = meta.get("beat", "")
         missing = bool(beat) and not Path(beat).is_file()

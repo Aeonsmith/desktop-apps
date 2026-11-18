@@ -121,16 +121,27 @@ def leave_pad(pad_text: str) -> str:
 HAPPY_ACCIDENT = "happy accident"
 
 
+def clean_scrap_lines(scrap_lines: list[str] | None) -> list[str]:
+    return [line.strip() for line in (scrap_lines or []) if line and line.strip()]
+
+
+def scraps_file_text(scrap_lines: list[str] | None) -> str:
+    lines = clean_scrap_lines(scrap_lines)
+    if not lines:
+        return ""
+    return "\n".join(lines) + "\n"
+
+
 def happy_accident_tag(scrap_lines: list[str] | None) -> str:
     """Tag only takes that actually saved gibberish scraps."""
-    if any(line.strip() for line in (scrap_lines or [])):
+    if clean_scrap_lines(scrap_lines):
         return HAPPY_ACCIDENT
     return ""
 
 
 def session_lyrics(pad_text: str, scrap_lines: list[str] | None) -> str:
     """Pad text plus the margin scraps, for lyrics.txt. The pad widget is not edited."""
-    scraps = [line.strip() for line in (scrap_lines or []) if line and line.strip()]
+    scraps = clean_scrap_lines(scrap_lines)
     pad = pad_text.rstrip("\n")
     if not scraps:
         return pad
