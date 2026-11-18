@@ -1,0 +1,9 @@
+# PyInstaller output
+build/
+dist/
+
+# Draw certificates generated at runtime by `q999.py spin`
+certificates/
+
+__pycache__/
+*.pyc
