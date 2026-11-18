@@ -14,6 +14,7 @@ SESSION_FIELDS = (
     "name",
     "starred",
     "tag",
+    "kind",
     "beat",
     "loop_start",
     "loop_end",
@@ -117,11 +118,46 @@ class Vault:
             number += 1
         return self.root / f"{base}-{number}"
 
-    def write_session(self, when, samples, sample_rate, lyrics: str, meta: dict) -> WriteResult:
+    def write_session(self, when, samples, sample_rate, lyrics: str, meta: dict, scraps: str | None = None) -> WriteResult:
         folder = self.allocate_session_dir(when)
         folder.mkdir(parents=True, exist_ok=False)
         save_vocal(folder / "vocal.wav", samples, sample_rate)
         (folder / "lyrics.txt").write_text(lyrics, encoding="utf-8")
+        self._write_scraps_file(folder, scraps)
+        payload = dict(meta)
+        stamp = when.strftime("%Y-%m-%dT%H:%M:%S")
+        payload.setdefault("created", stamp)
+        payload.setdefault("record_started_at", payload["created"])
+        payload.setdefault("name", "")
+        payload.setdefault("starred", "0")
+        (folder / "session.txt").write_text(format_session(payload), encoding="utf-8")
+        shortcut_ok = True
+        shortcut_error = ""
+        try:
+            self.write_latest_shortcut(folder)
+        except Exception as exc:
+            shortcut_ok = False
+            shortcut_error = str(exc)
+        return WriteResult(folder, shortcut_ok, shortcut_error)
+
+    def write_scraps_session(self, when, lyrics: str, scraps: str, meta: dict) -> WriteResult:
+        """A session of generated scraps. No microphone file."""
+        folder = self.allocate_session_dir(when)
+        folder.mkdir(parents=True, exist_ok=False)
+        (folder / "lyrics.txt").write_text(lyrics, encoding="utf-8")
+        self._write_scraps_file(folder, scraps)
+        payload = dict(meta)
+        payload["kind"] = "scraps"
+        payload.setdefault("tag", "happy accident")
+        return self._store_meta(folder, payload, when)
+
+    def _write_scraps_file(self, folder: Path, scraps: str | None) -> None:
+        if not scraps or not scraps.strip():
+            return
+        text = scraps if scraps.endswith("\n") else scraps + "\n"
+        (folder / "scraps.txt").write_text(text, encoding="utf-8")
+
+    def _store_meta(self, folder: Path, meta: dict, when: datetime) -> WriteResult:
         payload = dict(meta)
         stamp = when.strftime("%Y-%m-%dT%H:%M:%S")
         payload.setdefault("created", stamp)
