@@ -9,6 +9,7 @@ from datetime import datetime
 from pathlib import Path
 
 from .audio import save_vocal
+from .gibber import HAPPY_ACCIDENT
 
 SESSION_FIELDS = (
     "name",
@@ -124,21 +125,7 @@ class Vault:
         save_vocal(folder / "vocal.wav", samples, sample_rate)
         (folder / "lyrics.txt").write_text(lyrics, encoding="utf-8")
         self._write_scraps_file(folder, scraps)
-        payload = dict(meta)
-        stamp = when.strftime("%Y-%m-%dT%H:%M:%S")
-        payload.setdefault("created", stamp)
-        payload.setdefault("record_started_at", payload["created"])
-        payload.setdefault("name", "")
-        payload.setdefault("starred", "0")
-        (folder / "session.txt").write_text(format_session(payload), encoding="utf-8")
-        shortcut_ok = True
-        shortcut_error = ""
-        try:
-            self.write_latest_shortcut(folder)
-        except Exception as exc:
-            shortcut_ok = False
-            shortcut_error = str(exc)
-        return WriteResult(folder, shortcut_ok, shortcut_error)
+        return self._store_meta(folder, meta, when)
 
     def write_scraps_session(self, when, lyrics: str, scraps: str, meta: dict) -> WriteResult:
         """A session of generated scraps. No microphone file."""
@@ -148,7 +135,7 @@ class Vault:
         self._write_scraps_file(folder, scraps)
         payload = dict(meta)
         payload["kind"] = "scraps"
-        payload.setdefault("tag", "happy accident")
+        payload.setdefault("tag", HAPPY_ACCIDENT)
         return self._store_meta(folder, payload, when)
 
     def _write_scraps_file(self, folder: Path, scraps: str | None) -> None:
