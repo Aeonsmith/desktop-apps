@@ -1,10 +1,14 @@
 import inspect
 import re
+import sys
 import tempfile
 import unittest
 import wave
 from datetime import datetime
 from pathlib import Path
+
+# Run straight from this folder, as the README says, without installing anything.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import numpy as np
 
@@ -234,6 +238,34 @@ class VaultTests(unittest.TestCase):
         self.assertEqual(meta["name"], "kept")
         self.assertEqual(meta["beat"], r"C:\Beats\my loop.wav")
 
+    def test_recorded_take_keeps_its_scraps_beside_the_vocal(self):
+        when = datetime(2026, 11, 18, 8, 40, 0)
+        result = self.vault.write_session(
+            when,
+            np.zeros((4, 1), np.float32),
+            44100,
+            "my line\n\nskreckna glay\n",
+            {"tag": HAPPY_ACCIDENT},
+            scraps="skreckna glay\n",
+        )
+        self.assertTrue((result.folder / "vocal.wav").exists())
+        self.assertEqual((result.folder / "scraps.txt").read_text(encoding="utf-8"), "skreckna glay\n")
+        meta = parse_session((result.folder / "session.txt").read_text(encoding="utf-8"))
+        self.assertEqual(meta["tag"], HAPPY_ACCIDENT)
+        self.assertNotIn("kind", meta)
+
+    def test_take_without_scraps_writes_no_scraps_file(self):
+        result = self.vault.write_session(
+            datetime(2026, 11, 18, 8, 50, 0),
+            np.zeros((4, 1), np.float32),
+            44100,
+            "my line",
+            {},
+        )
+        self.assertFalse((result.folder / "scraps.txt").exists())
+        meta = parse_session((result.folder / "session.txt").read_text(encoding="utf-8"))
+        self.assertNotIn("tag", meta)
+
     def test_scraps_session_has_no_vocal(self):
         when = datetime(2026, 11, 18, 9, 5, 0)
         result = self.vault.write_scraps_session(
@@ -310,6 +342,9 @@ class GuiContractTests(unittest.TestCase):
         save_scraps = inspect.getsource(DeskApp._save_scraps)
         self.assertNotIn("pad.insert", save_scraps)
         self.assertNotIn("pad.delete", save_scraps)
+        generate = inspect.getsource(DeskApp._generate_scraps)
+        self.assertNotIn("pad.insert", generate)
+        self.assertNotIn("pad.delete", generate)
 
 
 if __name__ == "__main__":
