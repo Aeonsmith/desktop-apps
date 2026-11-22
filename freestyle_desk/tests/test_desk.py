@@ -1,10 +1,14 @@
 import inspect
 import re
+import sys
 import tempfile
 import unittest
 import wave
 from datetime import datetime
 from pathlib import Path
+
+# Run straight from this folder, as the README says, without installing anything.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import numpy as np
 
